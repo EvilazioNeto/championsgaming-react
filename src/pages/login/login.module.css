@@ -1,0 +1,98 @@
+@import '../../styles/colors.css';
+
+.containerLogin {
+    min-height: 100dvh;
+    background-image: url('backgroundSignIn.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+
+    & .formLogin {
+        box-shadow: 0px 0px 8px gray;
+        width: 400px;
+        z-index: 1;
+        padding: 1.5rem;
+        background-color: var(--cor-branca);
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        border-radius: .5rem;
+
+        h2 {
+            color: var(--cor-texto);
+        }
+
+        .links {
+            display: flex;
+            gap: 1rem;
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        & div {
+            width: 100%;
+
+            .msgError{
+                text-align: center;
+                color: gray;
+                padding: .25rem;
+            }
+
+            & p {
+                color: var(--cor-texto);
+            }
+
+            & input {
+                width: 100%;
+                padding: .8rem 0rem;
+                border: none;
+                outline: gray;
+                border-bottom: 1px solid gray;
+                background-color: var(--cor-branca);
+                font-size: 1rem;
+            }
+
+        }
+
+        & .loginBtn {
+            padding: .8rem;
+            border-radius: 25px;
+            cursor: pointer;
+            background-color: var(--cor-verde);
+            border: none;
+            font-weight: bold;
+            color: #ffffff;
+            transition: .3s ease;
+        }
+
+        & .loginBtn:hover {
+            background-color: var(--cor-verde-escuro);
+        }
+    }
+}
+
+@media (max-width: 500px) {
+    .containerLogin {
+
+        & .formLogin {
+            width: 100%;
+        }
+    }
+}
+
+@media (max-width: 400px) {
+    .containerLogin {
+
+        & .formLogin {
+
+            & .links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    }
+}
