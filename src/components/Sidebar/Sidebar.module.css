@@ -1,0 +1,83 @@
+@import '../../styles/colors.css';
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar {
+    width: 240px;
+    border-right: 1px solid #dcdcdc;
+    position: fixed;
+    padding-top: 133px;
+    top: 0;
+    left: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+
+    & .optionsContainer {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        & ul {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: .8rem;
+            list-style-type: none;
+            padding: 1rem;
+
+            & li {
+                & a {
+                    display: flex;
+                    justify-content: space-between;
+                    gap: .5rem;
+                    cursor: pointer;
+                    color: gray;
+                    font-size: 18px;
+                    transition: .3s ease;
+                    padding: .5rem 0rem;
+                    width: 100%;
+                    text-decoration: none;
+                    border-bottom: 2px solid #fff;
+
+                    & svg {
+                        color: goldenrod;
+                        font-size: 1.5rem;
+                    }
+                }
+            }
+
+            & a:hover {
+                color: black;
+                border-bottom: 2px solid var(--cor-verde-escuro);
+            }
+
+        }
+
+        .settings {
+            border-top: 1px solid #dcdcdc;
+
+            li {
+                display: flex;
+                justify-content: space-between;
+                padding: .5rem 0rem;
+                color: gray;
+
+                svg{
+                    color: goldenrod;
+                    font-size: 1.5rem;
+                }
+
+                a{
+                    padding: .5rem 0rem;
+                }
+            }
+        }
+    }
+
+
+}

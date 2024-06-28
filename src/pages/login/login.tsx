@@ -30,7 +30,7 @@ function Login() {
             const response = await authenticate(data.email, data.senha);
 
             if (response.id) {
-                navigate('/home')
+                navigate('/')
             }
 
         } catch (error: unknown) {
@@ -45,9 +45,7 @@ function Login() {
             } else {
                 toast.error('Ocorreu um erro desconhecido');
             }
-
         }
-
     }
     return (
         <main className={styles.containerLogin}>

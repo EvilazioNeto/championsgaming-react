@@ -1,7 +1,7 @@
 export interface IUser {
-    email?: string;
-    accessToken?: string;
-    id?: string;
+    email: string;
+    token: string;
+    id: number;
 }
 
 export interface LoginResponse {
