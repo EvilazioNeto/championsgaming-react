@@ -1,10 +1,10 @@
 @import '../../../styles/colors.css';
 
-.gerenciarLigaContainer {
+.gerenciarClubeContainer {
     margin-top: 133px;
     margin-left: 240px;
 
-    & section {
+    section{
         margin: 0 auto;
         width: 100%;
         max-width: 1400px;
@@ -13,39 +13,39 @@
         flex-direction: column;
         gap: 1rem;
 
-        h1 {
+        h1{
             text-align: center;
         }
 
-        /* & .addClubContainer {
+        & .addClubContainer{
             display: flex;
             gap: 1rem;
-
-            .clubsBox {
+    
+            .clubsBox{
                 display: flex;
                 flex-direction: column;
                 gap: .5rem;
-
-                & .club {
+    
+                & .club{
                     width: 310px;
                     border: 2px solid gray;
                     padding: .8rem;
                     display: flex;
                     justify-content: space-between;
                     gap: 1rem;
-
-                    & .clubInfo {
+    
+                    & .clubInfo{
                         display: flex;
                         flex-direction: column;
                         gap: .5rem;
-
-                        div {
+    
+                        div{
                             display: flex;
                             align-items: center;
                             gap: .5rem;
                         }
-
-                        & .escudo {
+    
+                        & .escudo{
                             border-radius: 50%;
                             position: relative;
                             overflow: hidden;
@@ -54,77 +54,63 @@
                             border: 1px solid gray;
                         }
                     }
-
-                    .clubSettings {
+    
+                    .clubSettings{
                         display: grid;
                         grid-template-columns: 1fr 1fr;
                         align-items: center;
                         gap: .5rem 1rem;
-
-                        & svg {
+    
+                        & svg{
                             font-size: 1.5rem;
                             cursor: pointer;
                             color: black;
                         }
-
-                        & .trashIcon {
+    
+                        & .trashIcon{
                             color: #e30e0e;
                         }
-
-                        & .editIcon {
+    
+                        & .editIcon{
                             color: #1073f3;
                         }
                     }
-
-
+    
+    /* 
+               
+    */
+                }
+    
+                & .club:hover{
+                    border: 2px solid var(--cor-verde-escuro);
+                    background-color: aliceblue;
                 }
 
-                & .club:hover {
+                .clubeSelecionado{
                     border: 2px solid var(--cor-verde-escuro);
                     background-color: aliceblue;
                 }
             }
-
-            .jogadoresContainer {
-                background-color: #dcdcdc;
-                border: 1px solid gray;
+    
+            .jogadoresContainer{
+                /* background-color: #ede8e8; */
+                /* border: 1px solid gray; */
                 flex: 1;
-            }
-        } */
-
-        ul {
-            width: 100%;
-            list-style-type: none;
-            display: flex;
-            justify-content: space-around; 
-            gap: 1rem;
-            font-weight: bold;
-
-            li {
-                width: 150px;
-                text-align: center;
-                border-radius: 10px;
-                display: flex;
+                /* padding: .5rem; */
+                 display: flex; 
                 flex-direction: column;
-                gap: .5rem;
-                cursor: pointer;
-                border: 3px solid var(--cor-verde-escuro);
-                padding: .5rem;
-                transition: .3s ease;
+                gap: .5rem; 
 
-                & svg {
-                    font-size: 2rem;
+                & table{
+                    border-collapse: collapse;
+                    text-align: center;
+
+                    th, td{
+                        padding: .5rem;
+                    }
                 }
-            }
 
-            li:hover {
-                background-color: aliceblue;
-                color: var(--cor-verde-escuro);
-            }
-
-            .selected {
-                background-color: aliceblue;
-                color: var(--cor-verde-escuro);
+              
             }
         }
     }
