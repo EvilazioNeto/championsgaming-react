@@ -8,6 +8,7 @@ import CriarLiga from './pages/liga/criar-liga/CriarLiga';
 import MinhasLigas from './pages/liga/minhas-ligas/minhasLigas';
 import GerenciarLiga from './pages/liga/gerenciar-liga/gerenciarLiga';
 import GerenciarClubes from './pages/liga/gerenciar-clube/gerenciarClubes';
+import Tabela from './pages/liga/tabela/tabela';
 
 function MainRoutes() {
     
@@ -55,6 +56,15 @@ function MainRoutes() {
                     </Layout>
                 </PrivateRoute>}
             />
+
+            <Route path='/minhas-ligas/:id/tabela' element={
+                <PrivateRoute>
+                    <Layout>
+                        <Tabela />
+                    </Layout>
+                </PrivateRoute>}
+            />
+
             
         </Routes>
     )

@@ -19,6 +19,7 @@ import { calcularIdade } from '../../../utils/calcularIdade';
 import Loading from '../../../components/Loading/Loading';
 import UpdateClub from '../../../components/Modal/Club/UpdateClub/UpdateClub';
 import { atualizarJogadorPorId, criarJogador, deletarJogadorPorId, obterJogadoresDoClubePorId, obterPosicoes } from '../../../services/player/playerService';
+import { criarClube, criarClubeCampeonatoEstatisticas, deletarCampeonatoClubeEstatisticas, deletarClubePorId, getCampeonatoEstatisticas } from '../../../services/api/club/clubService';
 
 function GerenciarClubes() {
     const [loading, setLoading] = useState<boolean>(false)
@@ -70,10 +71,12 @@ function GerenciarClubes() {
 
                     if (clubes.length > 0) {
                         setClubeSelecionado(clubes[0])
-                        const playerResponse = await Api.get(`/clubes/${clubes[0].id}/jogadores`)
+                        const playerResponse = await obterJogadoresDoClubePorId(clubes[0].id)
 
-                        if (playerResponse.status === 200) {
-                            setJogadores(playerResponse.data)
+                        if (playerResponse instanceof Error) {
+                            return;
+                        } else {
+                            setJogadores(playerResponse)
                         }
                     }
                     setLoading(false)
@@ -95,33 +98,39 @@ function GerenciarClubes() {
 
         if (confirmar) {
             try {
-                const tabelas = await Api.get(`/campeonatos/${campeonato.id}/clubes`);
-                const clubeTabelaInfo: IClubeCampeonato[] = tabelas.data.filter((tabela: IClubeCampeonato) => tabela.clubeId === data.id)
+                const clubesEstatisticas = await getCampeonatoEstatisticas(campeonato.id)
+                if (clubesEstatisticas instanceof Error) {
+                    return;
+                } else {
+                    const clubeTabelaInfo: IClubeCampeonato[] = clubesEstatisticas.filter((clubesEstatistica: IClubeCampeonato) => clubesEstatistica.clubeId === data.id)
 
-                const delTabelaInfoRes = await Api.delete(`/clubes-campeonatos/${clubeTabelaInfo[0].id}`)
-                toast.success("Clube excluido da tabela")
+                    const delTabelaInfoRes = await deletarCampeonatoClubeEstatisticas(clubeTabelaInfo[0].id)
 
-                if (delTabelaInfoRes.status === 200) {
-                    const jogadoresClubRes = await obterJogadoresDoClubePorId(data.id)
-
-                    if (jogadoresClubRes instanceof Error) {
+                    if (delTabelaInfoRes instanceof Error) {
                         return;
                     } else {
-                        await Promise.all(
-                            jogadoresClubRes.map((jogador: IJogador) => Api.delete(`/jogadores/${jogador.id}`))
-                        );
-                    }
+                        const jogadoresClubRes = await obterJogadoresDoClubePorId(data.id)
 
-                    const response = await Api.delete(`/clubes/${data.id}`);
+                        if (jogadoresClubRes instanceof Error) {
+                            return;
+                        } else {
+                            await Promise.all(
+                                jogadoresClubRes.map((jogador: IJogador) => Api.delete(`/jogadores/${jogador.id}`))
+                            );
+                        }
 
-                    if (response.status === 204) {
-                        const i = arrClubs.indexOf(data)
-                        arrClubs.splice(i, 1)
-                        setArrClubs([...arrClubs]);
-                        toast.success("Clube deletado com sucesso")
+                        const response = await deletarClubePorId(data.id)
 
-                        setClubeSelecionado(arrClubs[0])
-                        getClubPlayers(arrClubs[0])
+                        if (response instanceof Error) {
+                            return;
+                        } else {
+                            const i = arrClubs.indexOf(data)
+                            arrClubs.splice(i, 1)
+                            setArrClubs([...arrClubs]);
+                            setClubeSelecionado(arrClubs[0])
+                            getClubPlayers(arrClubs[0])
+                        }
+
                     }
                 }
 
@@ -135,36 +144,30 @@ function GerenciarClubes() {
 
     async function handleAddClub(data: Omit<IClube, 'id'>) {
         try {
-            const response = await Api.post("/clubes", data);
+            const response = await criarClube(data)
 
-            const novoClube: IClube = {
-                ...data,
-                id: response.data
-            }
+            if (typeof response === 'number') {
+                const novoClube: IClube = {
+                    ...data,
+                    id: response
+                }
 
-            if (response.status === 201) {
                 setArrClubs([...arrClubs, novoClube])
-                toast.success("Clube criado com sucesso")
+
+                const infoClubeTabela: Omit<IClubeCampeonato, 'id'> = {
+                    campeonatoId: campeonato.id,
+                    clubeId: novoClube.id,
+                    cartoesAmarelos: 0,
+                    cartoesVermelhos: 0,
+                    derrotas: 0,
+                    empates: 0,
+                    golsContra: 0,
+                    golsPro: 0,
+                    vitorias: 0
+                }
+
+                await criarClubeCampeonatoEstatisticas(infoClubeTabela)
             }
-
-            const infoClubeTabela: Omit<IClubeCampeonato, 'id'> = {
-                campeonatoId: campeonato.id,
-                clubeId: novoClube.id,
-                cartoesAmarelos: 0,
-                cartoesVermelhos: 0,
-                derrotas: 0,
-                empates: 0,
-                golsContra: 0,
-                golsPro: 0,
-                vitorias: 0
-            }
-
-            const response2 = await Api.post(`/clubes-campeonatos`, infoClubeTabela);
-
-            if (response2.status === 201) {
-                toast.success("Adicionado na liga: " + `${campeonato.nome}`)
-            }
-
 
         } catch (error) {
             console.log(error)
@@ -289,8 +292,9 @@ function GerenciarClubes() {
         try {
             if (selectedPlayer) {
                 const response = await atualizarJogadorPorId(selectedPlayer?.id, dados)
-                if (response === undefined || response === null) {
-
+                if (response instanceof Error) {
+                    return;
+                } else {
                     const i = jogadores.indexOf(selectedPlayer)
                     jogadores.splice(i, 1)
 
@@ -300,6 +304,7 @@ function GerenciarClubes() {
                         clubeId: selectedPlayer.clubeId
                     }
                     setJogadores([...jogadores, jogadorAtualizado])
+
                 }
             }
         } catch (error) {
