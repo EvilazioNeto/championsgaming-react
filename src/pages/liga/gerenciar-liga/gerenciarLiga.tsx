@@ -73,8 +73,10 @@ function GerenciarLiga() {
                             </Link>
                         </li>
                         <li className={btnSelected === 'jogos' ? styles.selected : ''} onClick={() => setBtnSelected('jogos')}>
-                            JOGOS
-                            <FontAwesomeIcon icon={faPlay} />
+                            <Link to={`/minhas-ligas/${id}/jogos`}>
+                                JOGOS
+                                <FontAwesomeIcon icon={faPlay} />
+                            </Link>
                         </li>
                         <li className={btnSelected === 'artilheiros' ? styles.selected : ''} onClick={() => setBtnSelected('artilheiros')}>
                             ARTILHEIROS
