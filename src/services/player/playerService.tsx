@@ -31,7 +31,7 @@ export async function criarJogador(jogador: Omit<IJogador, 'id'>): Promise<numbe
 export async function obterJogadorPorId(id: number): Promise<IJogador | Error> {
     try {
         const response = await Api.get<IJogador>(`/jogadores/${id}`);
-        if (response.status === 201) {
+        if (response.status === 200) {
             return response.data;
         } else {
             return new Error('Erro inesperado ao obter jogador');

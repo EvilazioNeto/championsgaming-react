@@ -9,16 +9,21 @@ interface ListPlayersProps {
 
 function ListPlayers({ jogadores, fecharModal, selecionarJogador }: ListPlayersProps) {
 
-
     return (
         <div className={styles.overlay}>
             <div className={styles.listPlayersModal}>
                 <button onClick={() => fecharModal()} type='button'>FECHAR</button>
-                {jogadores.map((jogador) => (
-                    <div onClick={() => selecionarJogador(jogador)} key={jogador.id} className={styles.jogadorBox}>
-                        <p>{jogador.nome}</p>
+                {jogadores.length > 0 ? (
+                    jogadores.map((jogador) => (
+                        <div onClick={() => selecionarJogador(jogador)} key={jogador.id} className={styles.jogadorBox}>
+                            <p>{jogador.nome}</p>
+                        </div>
+                    ))
+                ) : (
+                    <div>
+                        <h4>Nenhum jogador da posição encontrado</h4>
                     </div>
-                ))}
+                )}
             </div>
         </div>
     )

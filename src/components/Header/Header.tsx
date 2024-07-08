@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import styles from './Header.module.css';
+import logoUser from '/user.png'
 
 function Header() {
     return (
@@ -22,7 +23,7 @@ function Header() {
             </div>
             <div className={styles.userImgBox}>
                 <Link to="/account">
-                    <img className={styles.userImg} src="user.png" alt="" />
+                    <img className={styles.userImg} src={logoUser} alt="" />
                 </Link>
             </div>
         </header>
