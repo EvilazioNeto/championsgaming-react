@@ -1,8 +1,10 @@
 export interface IJogo {
     id: number;
     campeonatoId: number;
-    dataJogo: Date;
-    horaJogo: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    dataJogo: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    horaJogo: any;
     clube1Id: number;
     golClube1: number;
     clube2Id: number;

@@ -17,6 +17,11 @@ import campo from '/campo.avif'
 import { IJogadorJogo } from '../../../interfaces/JogadorJogo';
 import PlayerStats from '../../../components/Modal/Player/PlayerStats/PlayerStats';
 import { obterSistemaTatico } from '../../../utils/obterSistemaTatico';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { jogosValidationSchema } from '../../../utils/jogoValidation';
+import { formatToDate } from '../../../utils/formatToDate';
+import { toast } from 'react-toastify';
 
 interface IPosicoesProps {
     id: number,
@@ -25,6 +30,7 @@ interface IPosicoesProps {
 }
 
 function GerenciarJogos() {
+    const [clubeCampStats, setClubeCampStats] = useState<IClubeCampeonato[]>([])
     const { id } = useParams();
     const [jogos, setJogos] = useState<IJogo[]>([]);
     const [campeonato, setCampeonato] = useState<ICampeonato>();
@@ -68,6 +74,15 @@ function GerenciarJogos() {
         { id: 14, nome: "CA", classe: styles.centroavante },
     ])
 
+    const { register, handleSubmit, formState: { errors } } = useForm<Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'rodada' | 'tipoJogo'>>({
+        resolver: yupResolver(jogosValidationSchema)
+    })
+
+
+    let idToNumber: number
+    if (id) {
+        idToNumber = parseInt(id)
+    }
     useEffect(() => {
         async function obterDados() {
             try {
@@ -76,13 +91,13 @@ function GerenciarJogos() {
 
                 if (response.status === 200 && id) {
                     setCampeonato(response.data)
-                    const idToNumber = parseInt(id)
 
                     const infoTabela = await getCampeonatoEstatisticas(idToNumber);
 
                     if (infoTabela instanceof Error) {
                         return;
                     }
+                    setClubeCampStats(infoTabela)
                     const promessas = infoTabela.map((info: IClubeCampeonato) => {
                         return Api.get(`/clubes/${info.clubeId}`);
                     });
@@ -114,7 +129,7 @@ function GerenciarJogos() {
         obterDados()
     }, [id, clube1Id, clube2Id]);
 
-    
+
     function handleSistemaTatico(sistema: string, clube: string) {
         const novoSistema = obterSistemaTatico(sistema);
         if (clube === 'clube1') {
@@ -211,14 +226,14 @@ function GerenciarJogos() {
         }
     }
 
-    function atualizarStatsJogador(clube: string){
-        if(clube === "clube1"){
+    function atualizarStatsJogador(clube: string) {
+        if (clube === "clube1") {
             const jogadoresStats = jogadoresJogosStats.filter((jogadorStats) =>
                 escalacaoClube1.some((jogEscalados) => jogadorStats.jogadorId === jogEscalados.id)
             );
 
             setJogadoresJogosStats(jogadoresStats);
-        }else if(clube === "clube2"){
+        } else if (clube === "clube2") {
             const jogadoresStats = jogadoresJogosStats.filter((jogadorStats) =>
                 escalacaoClube2.some((jogEscalados) => jogadorStats.jogadorId === jogEscalados.id)
             );
@@ -245,7 +260,6 @@ function GerenciarJogos() {
     useEffect(() => {
         handleGols();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        console.log(jogadoresJogosStats)
     }, [jogadoresJogosStats]);
 
     function handleGols() {
@@ -271,6 +285,108 @@ function GerenciarJogos() {
         setGolsClube1(qtdGolsClube1);
         setGolsClube2(qtdGolsClube2);
     }
+
+    async function onSubmit(dados: Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'rodada' | 'tipoJogo'>) {
+        if (escalacaoClube1.length < 11 && escalacaoClube2.length < 11) {
+            toast.error("Escale todos os jogadores")
+        } else {
+            if (clube1Id && clube2Id) {
+                const jogo: Omit<IJogo, 'id'> = {
+                    campeonatoId: idToNumber,
+                    clube1Id: clube1Id,
+                    clube2Id: clube2Id,
+                    dataJogo: formatToDate(dados.dataJogo),
+                    horaJogo: dados.horaJogo,
+                    localJogo: dados.localJogo,
+                    rodada: 1,
+                    golClube2: golsClube2,
+                    golClube1: golsClube1,
+                    tipoJogo: 'ida'
+                }
+                try {
+                    const response = await Api.post(`/jogos`, jogo)
+
+                    if (response.status === 201) {
+                        const statsClube1 = clubeCampStats.find((clubeStats) => clubeStats.clubeId === clube1Id)
+                        const statsClube2 = clubeCampStats.find((clubeStats) => clubeStats.clubeId === clube2Id)
+
+                        if (statsClube1 && statsClube2) {
+                            let dadosAtt1: Omit<IClubeCampeonato, 'id' | 'clubeId' | 'campeonatoId'> = {
+                                golsPro: statsClube1?.golsPro + golsClube1,
+                                golsContra: statsClube1?.golsContra + golsClube2,
+                                vitorias: statsClube1.vitorias,
+                                derrotas: statsClube1.derrotas,
+                                empates: statsClube1.empates,
+                                cartoesAmarelos: 0,
+                                cartoesVermelhos: 0
+                            }
+                            let dadosAtt2: Omit<IClubeCampeonato, 'id' | 'clubeId' | 'campeonatoId'> = {
+                                golsPro: statsClube2?.golsPro + golsClube2,
+                                golsContra: statsClube2?.golsContra + golsClube1,
+                                vitorias: statsClube2.vitorias,
+                                derrotas: statsClube2.derrotas,
+                                empates: statsClube2.empates,
+                                cartoesAmarelos: 0,
+                                cartoesVermelhos: 0
+                            }
+
+                            if (golsClube1 > golsClube2) {
+                                dadosAtt1 = {
+                                    ...dadosAtt1,
+                                    vitorias: statsClube1.vitorias + 1
+                                };
+                                dadosAtt2 = {
+                                    ...dadosAtt2,
+                                    derrotas: statsClube2.derrotas + 1
+                                };
+                            } else if (golsClube2 > golsClube1) {
+                                dadosAtt2 = {
+                                    ...dadosAtt2,
+                                    vitorias: statsClube2.vitorias + 1
+                                };
+                                dadosAtt1 = {
+                                    ...dadosAtt1,
+                                    derrotas: statsClube1.derrotas + 1
+                                };
+                            } else {
+                                dadosAtt1 = {
+                                    ...dadosAtt1,
+                                    empates: statsClube1.empates + 1
+                                };
+                                dadosAtt2 = {
+                                    ...dadosAtt2,
+                                    empates: statsClube2.empates + 1
+                                };
+                            }
+
+                            const response1 = await Api.put(`/clubes-campeonatos/${statsClube1.id}`, dadosAtt1)
+                            const response2 = await Api.put(`/clubes-campeonatos/${statsClube2.id}`, dadosAtt2)
+
+                            if (response1.status === 200 && response2.status === 200) {
+                                await attDados()
+                                toast.success("Jogo criado com sucesso")
+                            } else {
+                                toast.error("Erro ao criar jogo")
+                            }
+
+                        }
+                    }
+                } catch (error) {
+                    console.log(error)
+                }
+
+            }
+        }
+    }
+
+    const attDados = async () => {
+        const infoTabela = await getCampeonatoEstatisticas(idToNumber);
+        if (infoTabela instanceof Error) {
+            return;
+        }
+        setClubeCampStats(infoTabela);
+    };
+
 
     return (
         <>
@@ -373,6 +489,26 @@ function GerenciarJogos() {
                                     <img className={styles.campoImg} src={campo} alt="" />
                                 </div>
                             </div>
+                        </div>
+                        <div className={styles.detalhesJogo}>
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                                <div>
+                                    <p>Local do jogo</p>
+                                    <input   {...register('localJogo')} type="text" placeholder='Ex: Camp Nou' />
+                                    <div className={styles.msgError}>{errors.localJogo?.message}</div>
+                                </div>
+                                <div>
+                                    <p>Data jogo:</p>
+                                    <input type="date"   {...register('dataJogo')} />
+                                    <div className={styles.msgError}>{typeof errors.dataJogo?.message === 'string' && errors.dataJogo?.message}</div>
+                                </div>
+                                <div>
+                                    <p>Horario do jogo</p>
+                                    <input type="time"   {...register('horaJogo')} />
+                                    <div className={styles.msgError}>{typeof errors.horaJogo?.message === 'string' && errors.horaJogo?.message}</div>
+                                </div>
+                                <button>CRIAR JOGO</button>
+                            </form>
                         </div>
                     </div>
                 </section>

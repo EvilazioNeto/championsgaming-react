@@ -64,6 +64,7 @@ function Tabela() {
                     <thead>
                         <tr>
                             <th>Clube</th>
+                            <th>Pts</th>
                             <th>PJ</th>
                             <th>VIT</th>
                             <th>E</th>
@@ -77,6 +78,7 @@ function Tabela() {
                         {clubsStas.map((clube) => (
                             <tr key={clube.id}>
                                 <td>{clube.nomeClube}</td>
+                                <td>{(clube.vitorias *3) + (clube.empates)} </td>
                                 <td>{clube.vitorias + clube.empates + clube.derrotas}</td>
                                 <td>{clube.vitorias}</td>
                                 <td>{clube.empates}</td>
