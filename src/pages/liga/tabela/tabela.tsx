@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getCampeonatoEstatisticas } from "../../../services/api/club/clubService";
 import { IClubeCampeonato } from "../../../interfaces/ClubeCampeonato";
-import styles from './tabela.module.css';
 import { Api } from "../../../services/api/axios-config";
+import { Table, TableHead, TableRow, TableCell, TableBody, TableHeader } from "../../../components/ui/table";
+import styles from './tabela.module.css';
 
 interface ITabelaProps extends IClubeCampeonato {
     pontos: number,
@@ -11,15 +12,15 @@ interface ITabelaProps extends IClubeCampeonato {
 }
 
 function Tabela() {
-    const { id } = useParams()
+    const { id } = useParams();
     const [clubsStas, setClubStats] = useState<ITabelaProps[]>([]);
 
     useEffect(() => {
         async function getData() {
             try {
                 if (id) {
-                    const idToNumber = parseInt(id)
-                    const response = await getCampeonatoEstatisticas(idToNumber)
+                    const idToNumber = parseInt(id);
+                    const response = await getCampeonatoEstatisticas(idToNumber);
 
                     if (response instanceof Error) {
                         return;
@@ -37,7 +38,7 @@ function Tabela() {
                                 ...data,
                                 nomeClube: clube ? clube.data.nome : 'Nome não encontrado',
                                 pontos: (data.vitorias * 3) + (data.empates)
-                            }
+                            };
                         }).sort((a, b) => {
                             if (b.pontos !== a.pontos) {
                                 return b.pontos - a.pontos;
@@ -46,53 +47,54 @@ function Tabela() {
                             }
                         });
 
-                        setClubStats(tabelaAtt)
+                        setClubStats(tabelaAtt);
                     }
                 }
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
         }
-        getData()
-    }, [id])
+        getData();
+    }, [id]);
 
     return (
         <main className={styles.tabelaCampeonatoContainer}>
             <section>
-                <h1>TABELA DO CAMPEONATO</h1>
-                <table border={1}>
-                    <thead>
-                        <tr>
-                            <th>Clube</th>
-                            <th>Pts</th>
-                            <th>PJ</th>
-                            <th>VIT</th>
-                            <th>E</th>
-                            <th>DER</th>
-                            <th>GM</th>
-                            <th>GC</th>
-                            <th>SG</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {clubsStas.map((clube) => (
-                            <tr key={clube.id}>
-                                <td>{clube.nomeClube}</td>
-                                <td>{(clube.vitorias *3) + (clube.empates)} </td>
-                                <td>{clube.vitorias + clube.empates + clube.derrotas}</td>
-                                <td>{clube.vitorias}</td>
-                                <td>{clube.empates}</td>
-                                <td>{clube.derrotas}</td>
-                                <td>{clube.golsPro}</td>
-                                <td>{clube.golsContra}</td>
-                                <td>{clube.golsPro - clube.golsContra}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <Table>
+                    <TableHeader className="flex flex-col items-center">
+                        <TableHead className="w-full">
+                            <TableRow>
+                                <TableCell>Clube</TableCell>
+                                <TableCell align="center">Pts</TableCell>
+                                <TableCell align="center">PJ</TableCell>
+                                <TableCell align="center">VIT</TableCell>
+                                <TableCell align="center">E</TableCell>
+                                <TableCell align="center">DER</TableCell>
+                                <TableCell align="center">GM</TableCell>
+                                <TableCell align="center">GC</TableCell>
+                                <TableCell align="center">SG</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody className="w-full">
+                            {clubsStas.map((clube) => (
+                                <TableRow key={clube.id} >
+                                    <TableCell>{clube.nomeClube}</TableCell>
+                                    <TableCell align="center">{(clube.vitorias * 3) + (clube.empates)}</TableCell>
+                                    <TableCell align="center">{clube.vitorias + clube.empates + clube.derrotas}</TableCell>
+                                    <TableCell align="center">{clube.vitorias}</TableCell>
+                                    <TableCell align="center">{clube.empates}</TableCell>
+                                    <TableCell align="center">{clube.derrotas}</TableCell>
+                                    <TableCell align="center">{clube.golsPro}</TableCell>
+                                    <TableCell align="center">{clube.golsContra}</TableCell>
+                                    <TableCell align="center">{clube.golsPro - clube.golsContra}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </TableHeader>
+                </Table>
             </section>
         </main>
-    )
+    );
 }
 
 export default Tabela;

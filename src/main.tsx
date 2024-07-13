@@ -5,13 +5,17 @@ import MainRoutes from './routes';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './contexts/AuthProvider';
+import './styles/global.css';
+import { ThemeProvider } from './components/theme-provider';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <AuthProvider>
-    <BrowserRouter>
-      <MainRoutes />
-      <ToastContainer />
-    </BrowserRouter>
-  </AuthProvider>
+  <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <AuthProvider>
+      <BrowserRouter>
+        <MainRoutes />
+        <ToastContainer />
+      </BrowserRouter>
+    </AuthProvider>
+  </ThemeProvider>
 
 )

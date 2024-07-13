@@ -10,6 +10,7 @@ import GerenciarLiga from './pages/liga/gerenciar-liga/gerenciarLiga';
 import GerenciarClubes from './pages/liga/gerenciar-clube/gerenciarClubes';
 import Tabela from './pages/liga/tabela/tabela';
 import GerenciarJogos from './pages/liga/gerenciar-jogos/gerenciarJogos';
+import Artilheiros from './pages/liga/artilheiros/artilheiros';
 
 function MainRoutes() {
     
@@ -74,7 +75,14 @@ function MainRoutes() {
                 </PrivateRoute>}
             />
 
-            
+            <Route path='/minhas-ligas/:id/artilheiros' element={
+                <PrivateRoute>
+                    <Layout>
+                        <Artilheiros />
+                    </Layout>
+                </PrivateRoute>}
+            />
+  
         </Routes>
     )
 }

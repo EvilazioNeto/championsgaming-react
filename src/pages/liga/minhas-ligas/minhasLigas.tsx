@@ -50,7 +50,7 @@ export default function MinhasLigas() {
 
     return (
         <main className={styles.minhasLigasContainer}>
-            <h1>Minhas Ligas</h1>
+            <h1 className='text-3xl font-bold underline'>Minhas Ligas</h1>
             <ul>
                 {campeonatos.map((campeonato, i) => (
                     <li key={campeonato.id}>

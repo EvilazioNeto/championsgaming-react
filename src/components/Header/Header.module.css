@@ -1,19 +1,31 @@
 @import '../../styles/colors.css';
 
 header {
-    padding: 1rem;
+    padding: .5rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
     position: fixed;
     width: 100%;
     top: 0;
     left: 0;
     border-bottom: 1px solid #dcdcdc;
-    background-color: white;
     z-index: 3;
 
-    h2{
+    .navbar {
+
+        ul {
+            list-style-type: none;
+            gap: 1rem;
+            display: flex;
+
+            a{
+                text-decoration: none;
+            }
+        }
+    }
+
+    h2 {
         font-size: 1.75rem;
     }
 
@@ -47,10 +59,10 @@ header {
     }
 
     & .logo {
-        width: 100px;
+        width: 80px;
     }
 
-    & .searchBox {
+    /* & .searchBox {
         position: relative;
 
         & button {
@@ -62,14 +74,14 @@ header {
             border: none;
             position: relative;
             cursor: pointer;
-            /* border-bottom: 5px solid #dcdcdc; */
+            border-bottom: 5px solid #dcdcdc;
             margin-left: .5rem;
             transition: .3s ease;
         }
 
         & button:hover {
             background-color: var(--cor-verde-escuro);
-            /* border-bottom: 5px solid #afb0b1; */
+            border-bottom: 5px solid #afb0b1;
         }
 
         .searchIcon {
@@ -104,7 +116,7 @@ header {
             border: none;
             border-right: 1px solid #dcdcdc;
         }
-    }
+    } */
 }
 
 @media (max-width: 1200px) {

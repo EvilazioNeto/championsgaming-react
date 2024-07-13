@@ -30,7 +30,8 @@ interface IPosicoesProps {
 }
 
 function GerenciarJogos() {
-    const [clubeCampStats, setClubeCampStats] = useState<IClubeCampeonato[]>([])
+    const [clubeCampStats, setClubeCampStats] = useState<IClubeCampeonato[]>([]);
+    const [rodada, setRodada] = useState<number>(1)
     const { id } = useParams();
     const [jogos, setJogos] = useState<IJogo[]>([]);
     const [campeonato, setCampeonato] = useState<ICampeonato>();
@@ -74,15 +75,35 @@ function GerenciarJogos() {
         { id: 14, nome: "CA", classe: styles.centroavante },
     ])
 
-    const { register, handleSubmit, formState: { errors } } = useForm<Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'rodada' | 'tipoJogo'>>({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'rodada' | 'tipoJogo'>>({
         resolver: yupResolver(jogosValidationSchema)
     })
 
+    useEffect(() => {
+        console.log(jogadoresJogosStats)
+    }, [jogadoresJogosStats])
+
+    useEffect(() => {
+        async function obterJogos() {
+            try {
+                const response = await Api.get(`/campeonatos/${idToNumber}/jogos`)
+                if (response.status === 200) {
+                    const jogosRodada = response.data.filter((jogoRodata: IJogo) => jogoRodata.rodada === 1)
+                    setJogos(jogosRodada)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        obterJogos()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     let idToNumber: number
     if (id) {
         idToNumber = parseInt(id)
     }
+
     useEffect(() => {
         async function obterDados() {
             try {
@@ -127,6 +148,7 @@ function GerenciarJogos() {
             }
         }
         obterDados()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, clube1Id, clube2Id]);
 
 
@@ -286,6 +308,7 @@ function GerenciarJogos() {
         setGolsClube2(qtdGolsClube2);
     }
 
+
     async function onSubmit(dados: Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'rodada' | 'tipoJogo'>) {
         if (escalacaoClube1.length < 11 && escalacaoClube2.length < 11) {
             toast.error("Escale todos os jogadores")
@@ -298,7 +321,7 @@ function GerenciarJogos() {
                     dataJogo: formatToDate(dados.dataJogo),
                     horaJogo: dados.horaJogo,
                     localJogo: dados.localJogo,
-                    rodada: 1,
+                    rodada: rodada,
                     golClube2: golsClube2,
                     golClube1: golsClube1,
                     tipoJogo: 'ida'
@@ -364,11 +387,29 @@ function GerenciarJogos() {
 
                             if (response1.status === 200 && response2.status === 200) {
                                 await attDados()
+
+                                const jogadoresStatsComJogoId: Omit<IJogadorJogo, 'id'>[] = jogadoresJogosStats.map((jogadorStats) => ({
+                                    ...jogadorStats,
+                                    jogoId: response.data
+                                }))
+
+                                const promessas = jogadoresStatsComJogoId.map((jogadorStats: Omit<IJogadorJogo, 'id'>) => {
+                                    return Api.post(`/jogadores-jogos`, jogadorStats);
+                                })
+                                const responses = await Promise.all(promessas);
+
+                                let jogadores: number[] = []
+                                responses.forEach((promessa) => {
+                                    if (promessa.status === 201) {
+                                        jogadores = [...jogadores, promessa.data]
+                                    }
+                                })
                                 toast.success("Jogo criado com sucesso")
+                                reset();
+
                             } else {
                                 toast.error("Erro ao criar jogo")
                             }
-
                         }
                     }
                 } catch (error) {
@@ -387,6 +428,19 @@ function GerenciarJogos() {
         setClubeCampStats(infoTabela);
     };
 
+    async function handleRodadas(rodada: number) {
+        setRodada(rodada)
+        try {
+            const response = await Api.get(`/campeonatos/${idToNumber}/jogos`)
+            if (response.status === 200) {
+                const jogosRodada = response.data.filter((jogoRodata: IJogo) => jogoRodata.rodada === rodada)
+                setJogos(jogosRodada)
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error("Erro ao buscar jogos")
+        }
+    }
 
     return (
         <>
@@ -396,17 +450,24 @@ function GerenciarJogos() {
             <main className={styles.gerenciarJogosContainer}>
                 <section>
                     <div className={styles.rodadasBox}>
-                        <select className={styles.selecionarRodada} name="" id="">
+                        <h2>JOGOS</h2>
+                        <select className={styles.selecionarRodada} onChange={(e) => handleRodadas(Number(e.target.value))}>
                             {campeonato && Array.from({ length: campeonato?.numeroRodadas }, (_, i) => (
-                                <option key={i}>{i + 1}° rodada</option>
+                                <option value={i + 1} key={i}>{i + 1}° rodada</option>
                             ))}
                         </select>
-                        <button className={styles.addJogoBtn}>NOVO JOGO</button>
+                        {/* <button className={styles.addJogoBtn}>NOVO JOGO</button> */}
                         <div className={styles.jogosBox}>
                             {jogos.length > 0 ? (
-                                <div>
-
-                                </div>
+                                jogos.map((jogo) => {
+                                    const clube1 = arrClubs.find((clube) => clube.id === jogo.clube1Id);
+                                    const clube2 = arrClubs.find((clube) => clube.id === jogo.clube2Id);
+                                    return clube1 && clube2 && (
+                                        <div className={styles.jogo}>
+                                            <p>{clube1.nome} {jogo.golClube1} x {jogo.golClube2} {clube2.nome}</p>
+                                        </div>
+                                    )
+                                })
                             ) : (
                                 <div className={styles.empty}>
                                     <h2>Nenhum jogo encontrado</h2>

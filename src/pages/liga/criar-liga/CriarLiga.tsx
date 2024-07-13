@@ -41,7 +41,7 @@ function CriarLiga() {
         }
 
     }
-
+    
     return (
         <>
             <main className={styles.mainCriarLiga}>

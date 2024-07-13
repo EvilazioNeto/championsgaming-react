@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import styles from './Header.module.css';
-import logoUser from '/user.png'
+import { ModeToggle } from "../mode-toggle";
 
 function Header() {
     return (
@@ -11,21 +11,36 @@ function Header() {
                     <h2>TORNEIO MASTER</h2>
                 </Link>
             </div>
-            <div className={styles.searchBox}>
-                <select name="" id="">
-                    <option value="">São Paulo, Brasil</option>
-                    <option value="">Sergipe, Brasil</option>
-                    <option value="">Bahia, Brasil</option>
-                    <option value="">Minas Gerais, Brasil</option>
-                </select> 
-                <input type="text" placeholder='Search' />
-                <button>SEARCH</button>
+            <div className={styles.navbar}>
+                <ul>
+                    <li>
+                        <Link to="/">
+                            Home
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/criar-liga">
+                            Criar liga
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/minhas-ligas">
+                            Minhas ligas
+                        </Link>
+                    </li>
+                    <li>
+                        <Link to="/">
+                            Usuario
+                        </Link>
+                    </li>
+                    <ModeToggle />
+                </ul>
             </div>
-            <div className={styles.userImgBox}>
+            {/* <div className={styles.userImgBox}>
                 <Link to="/account">
                     <img className={styles.userImg} src={logoUser} alt="" />
                 </Link>
-            </div>
+            </div> */}
         </header>
     )
 }
