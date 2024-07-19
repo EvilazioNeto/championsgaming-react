@@ -8,30 +8,40 @@ import { formatToDate } from '../../../utils/formatToDate';
 import { useAuth } from '../../../contexts/AuthProvider/useAuth';
 import { Api } from '../../../services/api/axios-config';
 import { toast } from 'react-toastify';
+import { Input } from '../../../components/ui/input';
+import { DatePickerWithRange } from '../../../components/DatePicker/DatePickerWithRange';
+import { Button } from '../../../components/ui/button';
+
+interface DateProps {
+    dataInicio: Date,
+    dataFim: Date
+}
 
 function CriarLiga() {
     const { id } = useAuth();
+    const [dataInicio, setDataInicio] = useState<string>()
+    const [dataFim, setDataFim] = useState<string>()
     const [btnSelected, setBtnSelected] = useState<number>(4);
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<Omit<ICampeonato, 'id' | 'usuarioId' | 'status' | 'numeroRodadas' | 'quantidadeTimes'>>({
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<Omit<ICampeonato, 'id' | 'usuarioId' | 'status' | 'numeroRodadas' | 'quantidadeTimes' | 'dataInicio' | 'dataFim'>>({
         resolver: yupResolver(campeonatoValidationSchema)
     })
 
-    async function onSubmit(data: Omit<ICampeonato, 'id' | 'usuarioId' | 'status' | 'numeroRodadas' | 'quantidadeTimes'>) {
+    async function onSubmit(data: Omit<ICampeonato, 'id' | 'usuarioId' | 'status' | 'numeroRodadas' | 'quantidadeTimes' | 'dataInicio' | 'dataFim'>) {
         const rodadas = 2 * (btnSelected - 1);
         const dados = {
-            dataFim: formatToDate(data.dataFim),
-            dataInicio: formatToDate(data.dataInicio),
+            dataFim: dataFim,
+            dataInicio: dataInicio,
             usuarioId: id,
             nome: data.nome,
             status: 'ativo',
             numeroRodadas: rodadas,
             quantidadeTimes: btnSelected
         }
-
+    
         try {
             const response = await Api.post("/campeonatos", dados)
 
-            if (response.status === 201){
+            if (response.status === 201) {
                 toast.success('Liga criada com sucesso')
                 reset();
             }
@@ -41,7 +51,12 @@ function CriarLiga() {
         }
 
     }
-    
+
+    function onDateChange(e: DateProps) {
+        setDataInicio(formatToDate(e.dataInicio))
+        setDataFim(formatToDate(e.dataFim))
+    }
+
     return (
         <>
             <main className={styles.mainCriarLiga}>
@@ -53,16 +68,16 @@ function CriarLiga() {
                         </div>
                         <div>
                             <p>Nome da Liga</p>
-                            <input
+                            <Input
                                 type="text"
                                 {...register('nome')}
                             />
                             <div className={styles.msgError}>{errors.nome?.message}</div>
                         </div>
                         <div className={styles.dataLiga}>
-                            <div>
+                            {/* <div>
                                 <p>Data início:</p>
-                                <input
+                                <Input
                                     type="date"
                                     {...register('dataInicio')}
                                 />
@@ -70,12 +85,14 @@ function CriarLiga() {
                             </div>
                             <div>
                                 <p>Data Fim:</p>
-                                <input
+                                <Input
                                     type="date"
                                     {...register('dataFim')}
                                 />
                                 <div className={styles.msgError}>{errors.dataFim?.message}</div>
-                            </div>
+                            </div> */}
+
+                            <DatePickerWithRange onDateChange={onDateChange} />
                         </div>
                         <div className={styles.qtdTimesContainer}>
                             <p>Quantidade de times</p>
@@ -92,7 +109,7 @@ function CriarLiga() {
                             </div>
                         </div>
 
-                        <button type='submit' className={styles.btnCriarLiga}>Criar Liga</button>
+                        <Button type='submit' className={styles.btnCriarLiga}>Criar Liga</Button>
                     </form>
 
                 </section>

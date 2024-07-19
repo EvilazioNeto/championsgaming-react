@@ -1,78 +1,229 @@
-import { useForm } from 'react-hook-form';
-import { IJogador } from '../../../../interfaces/Jogador';
-import styles from './AddPlayer.module.css';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { jogadorValidationSchema } from '../../../../utils/jogadorValidation';
-import { useEffect, useState } from 'react';
-import { IPosicao } from '../../../../interfaces/Posicao';
-import { obterPosicoes } from '../../../../services/player/playerService';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "../../../ui/button";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../ui/dialog";
+import { Input } from "../../../ui/input";
+import { faUserPlus, faX } from "@fortawesome/free-solid-svg-icons";
+import { useForm } from "react-hook-form";
+import { jogadorValidationSchema } from "../../../../utils/jogadorValidation";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { IJogador } from "../../../../interfaces/Jogador";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../../../ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../ui/select";
+import { IPosicao } from "../../../../interfaces/Posicao";
+import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover";
+import { cn } from "../../../../lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "../../../ui/calendar";
+import { useEffect, useState } from "react";
+import { Label } from "../../../ui/label";
+import { formatFile } from "../../../../utils/formatFile";
+import { useAuth } from "../../../../contexts/AuthProvider/useAuth";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { deleteObject, ref } from "firebase/storage";
+import { storage } from "../../../../firebase";
+import FileInformation from "../../../../interfaces/FileInformation";
 
 interface AddPlayerProps {
-    fecharModal: () => void;
     handleAddPlayer: (data: Omit<IJogador, 'id'>) => void;
-    clubeId: number | undefined
+    clubeId: number | undefined;
+    posicoes: IPosicao[]
 }
 
-function AddPlayer({ fecharModal, handleAddPlayer, clubeId }: AddPlayerProps) {
-    const [posicoes, setPosicoes] = useState<IPosicao[]>([])
-    const { register, handleSubmit, formState: { errors } } = useForm<Omit<IJogador, 'id' | 'clubeId'>>({
+function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
+    const auth = useAuth();
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+    const [promiseFoto, setPromiseFoto] = useState<FileInformation | null>(null);
+
+    const form = useForm<Omit<IJogador, 'id' | 'clubeId'>>({
         resolver: yupResolver(jogadorValidationSchema),
+        mode: 'onChange',
+        defaultValues: {
+            nome: '',
+            posicaoId: 1,
+            nacionalidade: '',
+            numeroCamisa: 1,
+            dataNascimento: '',
+        }
     });
 
     useEffect(() => {
-        obterPosicoes().then(data => {
-            setPosicoes(data);
-        });
-    }, []);
+        form.reset();
+        setPromiseFoto(null)
+    }, [isDialogOpen]);
 
     const onSubmit = (data: Omit<IJogador, 'id' | 'clubeId'>) => {
+        console.log(data)
         if (clubeId) {
             handleAddPlayer({ ...data, clubeId: clubeId });
-            fecharModal();
         }
+        setIsDialogOpen(false)
+        form.reset();
     };
 
+
+    async function handlepromiseFoto(e: React.ChangeEvent<HTMLInputElement>) {
+        if (e.target.files && e.target.files.length > 0) {
+            const uploadedPromises = formatFile(e.target.files[0], auth.id);
+            let uploadFinished = await Promise.resolve(uploadedPromises)
+
+            setPromiseFoto(uploadFinished);
+            console.log(uploadFinished)
+        }
+    }
+
+    function deleteFile(e: FileInformation) {
+
+        const deleteFile = confirm("Deseja remover o arquivo?")
+        if (deleteFile) {
+
+            const fileRef = ref(storage, `${e.downloadURL}`)
+            deleteObject(fileRef).then(() => {
+                console.log("arquivo deletado com sucesso!");
+                toast.success("Arquivo deletado");
+                setPromiseFoto(null)
+
+            }).catch((error) => {
+                console.log(error + ": erro ao deletar");
+                toast.error("Erro ao deletar")
+            });
+        }
+    }
+
     return (
-        <div className={styles.overlay}>
-            <div className={styles.addPlayerModal}>
-                <button type='button' onClick={() => fecharModal()}>FECHAR</button>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <h3>Add player</h3>
-                    <p>Nome do jogador</p>
-                    <input type="text" {...register('nome')} />
-                    {errors.nome && <p>{errors.nome.message}</p>}
+        <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
+            <DialogTrigger asChild>
+                <FontAwesomeIcon icon={faUserPlus} />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Adicionar Jogador</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                    <form className="flex flex-col gap-2" onSubmit={form.handleSubmit(onSubmit)}>
+                        <FormField control={form.control} name="fotoUrl" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Foto do jogador</FormLabel>
+                                <FormControl>
+                                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                                        <Input
+                                            onChange={handlepromiseFoto}
+                                            id="picture"
+                                            type="file"
+                                            className="hidden"
+                                        />
+                                        <Label htmlFor="picture" className="block w-full text-sm text-center text-white bg-blue-500 transition transition-duration: 150ms hover:bg-blue-600 cursor-pointer rounded-lg p-2">
+                                            Foto do jogador
+                                        </Label>
+                                        <div className="flex justify-between items-center">
+                                            <Link className="text-blue-500 underline" target="_blank" to={`${promiseFoto?.downloadURL}`}>
+                                                {promiseFoto?.name}
+                                            </Link>
+                                            {promiseFoto && <FontAwesomeIcon onClick={() => deleteFile(promiseFoto)} icon={faX} className="text-red-500 cursor-pointer" />}
+                                        </div>
+                                    </div>
+                                </FormControl>
+                            </FormItem>
+                        )} />
 
-                    <p>Posição do jogador</p>
-                    <select {...register('posicaoId')}>
-                        {posicoes.map((posicao) => (
-                            <option key={posicao.id} value={posicao.id}>{posicao.nome}</option>
-                        ))}
-                    </select>
+                        <FormField control={form.control} name="nome" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nome</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Nome do jogador" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )} />
 
-                    <p>Data de nascimento:</p>
-                    <input
-                        type="date"
-                        {...register('dataNascimento')}
-                    />
-                    <div className={styles.msgError}>{typeof errors.dataNascimento?.message === 'string' && errors.dataNascimento?.message}</div>
+                        <FormField
+                            control={form.control}
+                            name="posicaoId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Posições</FormLabel>
+                                    <Select onValueChange={field.onChange}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue>{posicoes.find(pos => pos.id === field.value)?.nome}</SelectValue>
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {posicoes.map((posicao) => (
+                                                <SelectItem key={posicao.id} value={String(posicao.id)}>
+                                                    {posicao.nome}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
 
-                    <p>Nacionalidade:</p>
-                    <input
-                        type="text"
-                        {...register('nacionalidade')}
-                    />
-                    {errors.nacionalidade && <p>{errors.nacionalidade.message}</p>}
+                        <FormField control={form.control} name="nacionalidade" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Nacionalidade</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Ex: Brasileiro" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )} />
 
-                    <p>Numero da Camisa</p>
-                    <input
-                        type="number"
-                        {...register('numeroCamisa')}
-                    />
+                        <FormField control={form.control} name="numeroCamisa" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Número da camisa</FormLabel>
+                                <FormControl>
+                                    <Input placeholder="Ex: 10" {...field} type="number" />
+                                </FormControl>
+                            </FormItem>
+                        )} />
 
-                    <button type="submit">Adicionar jogador</button>
-                </form>
-            </div>
-        </div>
+                        <FormField control={form.control} name="dataNascimento" render={({ field }) => (
+                            <FormItem className="flex flex-col">
+                                <FormLabel>Data de Nascimento</FormLabel>
+                                <FormControl>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <FormControl>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    {field.value ? (
+                                                        format(field.value, "PPP")
+                                                    ) : (
+                                                        <span>Pick a date</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                </Button>
+                                            </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value}
+                                                onSelect={field.onChange}
+                                                disabled={(date) =>
+                                                    date > new Date() || date < new Date("1900-01-01")
+                                                }
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </FormControl>
+                            </FormItem>
+                        )} />
+
+                        <DialogFooter>
+                            <Button type="submit">Adicionar</Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
     )
 }
 

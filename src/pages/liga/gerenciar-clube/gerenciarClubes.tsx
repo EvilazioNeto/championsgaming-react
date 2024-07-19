@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { ICampeonato } from '../../../interfaces/Campeonato';
 import AddClub from '../../../components/Modal/Club/AddClub/AddClub';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faUserEdit, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faUser, faUserEdit, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../../contexts/AuthProvider/useAuth';
 import { useParams } from 'react-router-dom';
 import AddPlayer from '../../../components/Modal/Player/AddPlayer/AddPlayer';
@@ -20,6 +20,10 @@ import Loading from '../../../components/Loading/Loading';
 import UpdateClub from '../../../components/Modal/Club/UpdateClub/UpdateClub';
 import { atualizarJogadorPorId, criarJogador, deletarJogadorPorId, obterJogadoresDoClubePorId, obterPosicoes } from '../../../services/player/playerService';
 import { criarClube, criarClubeCampeonatoEstatisticas, deletarCampeonatoClubeEstatisticas, deletarClubePorId, getCampeonatoEstatisticas } from '../../../services/api/club/clubService';
+import { Button } from '../../../components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../../../components/ui/dialog';
+import { Label } from '../../../components/ui/label';
+import { Input } from '../../../components/ui/input';
 
 function GerenciarClubes() {
     const [loading, setLoading] = useState<boolean>(false)
@@ -211,17 +215,16 @@ function GerenciarClubes() {
                 clubeId: data.clubeId
             }
 
-            const response = await criarJogador(dados)
+            await criarJogador(dados)
 
-            if (typeof response === 'number') {
-                const novoJogador = {
-                    ...dados,
-                    id: response
-                }
+            // if (typeof response === 'number') {
+            //     const novoJogador = {
+            //         ...dados,
+            //         id: response
+            //     }
 
-                setJogadores([...jogadores, novoJogador])
-            }
-
+            //     setJogadores([...jogadores, novoJogador])
+            // }
         } catch (error) {
             console.log(error)
             toast.error("Erro ao adicionar jogador")
@@ -316,7 +319,6 @@ function GerenciarClubes() {
         <>
             {loading && <Loading />}
             {modalUpdatePlayer && <UpdatePlayer player={selectedPlayer} handleUpdatePlayer={updadePlayer} fecharModal={() => setModalUpdatePlayer(false)} />}
-            {modalPlayer && <AddPlayer clubeId={clubeId} handleAddPlayer={handleAddPlayer} fecharModal={() => setModalPlayer(false)} />}
             {modal && <AddClub handleAddClube={handleAddClub} fecharModal={() => setModal(false)} />}
             {modalUpdateClub && <UpdateClub handleUpdateClube={handleUpdateClub} club={clubeSelecionado} fecharModal={() => setModalUpdateCLub(false)} />}
             <main className={styles.gerenciarClubeContainer}>
@@ -325,10 +327,10 @@ function GerenciarClubes() {
                         <div className={styles.clubsBox}>
                             <h2>Clubes</h2>
                             {arrClubs.length < campeonato.quantidadeTimes && (
-                                <button onClick={() => setModal(true)}>ADICIONAR CLUBE</button>
+                                <Button onClick={() => setModal(true)}>ADICIONAR CLUBE</Button>
                             )}
                             {arrClubs.map((club) => (
-                                <div key={club.id} className={`${styles.club} ${clubeSelecionado?.nome === club.nome ? styles.clubeSelecionado : ''}`} onClick={() => getClubPlayers(club)}>
+                                <div key={club.id} className={`${styles.club} ${clubeSelecionado?.nome === club.nome ? styles.clubeSelecionado : ''}`}>
                                     <div className={styles.clubInfo}>
                                         <div>
                                             <div className={styles.escudo}>
@@ -342,7 +344,10 @@ function GerenciarClubes() {
                                     <div className={styles.clubSettings}>
                                         <FontAwesomeIcon className={styles.editIcon} icon={faEdit} onClick={() => openUpdateClubModal(club)} />
                                         <FontAwesomeIcon className={styles.trashIcon} icon={faTrash} onClick={() => removeClub(club)} />
-                                        <FontAwesomeIcon className={styles.editIcon} icon={faUserPlus} onClick={() => openModal(club.id)} />
+
+                                        <AddPlayer posicoes={posicoes} handleAddPlayer={handleAddPlayer} clubeId={club.id} />
+
+                                        <FontAwesomeIcon className={styles.editIcon} icon={faUser} onClick={() => getClubPlayers(club)} />
                                     </div>
                                 </div>
                             ))}
