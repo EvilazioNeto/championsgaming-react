@@ -144,6 +144,7 @@ function GerenciarClubes() {
     }
 
     async function handleAddClub(data: Omit<IClube, 'id'>) {
+        console.log(data)
         try {
             const response = await criarClube(data)
 
@@ -176,24 +177,15 @@ function GerenciarClubes() {
         }
     }
 
-    async function handleUpdateClub(data: Omit<IClube, 'id'>) {
+    async function handleUpdateClub(data: IClube) {
         try {
-            const response = await Api.put(`/clubes/${clubeSelecionado?.id}`, data);
+            const response = await Api.put(`/clubes/${data.id}`, data);
 
             if (response.status === 204) {
                 toast.success("Clube atualizado")
 
-                if (clubeSelecionado) {
-                    const novosDados = {
-                        id: clubeSelecionado.id,
-                        ...data
-                    }
-
-                    const i = arrClubs.indexOf(clubeSelecionado)
-                    arrClubs.splice(i, 1)
-                    setArrClubs([novosDados, ...arrClubs])
-                }
-
+                const clubesAtualizados = arrClubs.filter(clube => clube.id !== data.id);
+                setArrClubs([...clubesAtualizados, data]);
             }
         } catch (error) {
             console.log(error)
@@ -306,16 +298,14 @@ function GerenciarClubes() {
     return (
         <>
             {loading && <Loading />}
-            {/* {modalUpdatePlayer && <UpdatePlayer player={selectedPlayer} handleUpdatePlayer={updadePlayer} fecharModal={() => setModalUpdatePlayer(false)} />} */}
-            {modal && <AddClub handleAddClube={handleAddClub} fecharModal={() => setModal(false)} />}
-            {modalUpdateClub && <UpdateClub handleUpdateClube={handleUpdateClub} club={clubeSelecionado} fecharModal={() => setModalUpdateCLub(false)} />}
+            {/* {modalUpdateClub && <UpdateClub handleUpdateClube={handleUpdateClub} club={clubeSelecionado} fecharModal={() => setModalUpdateCLub(false)} />} */}
             <main className={styles.gerenciarClubeContainer}>
                 <section>
                     <div className={styles.addClubContainer}>
                         <div className={styles.clubsBox}>
                             <h2>Clubes</h2>
                             {arrClubs.length < campeonato.quantidadeTimes && (
-                                <Button onClick={() => setModal(true)}>ADICIONAR CLUBE</Button>
+                                <AddClub handleAddClube={handleAddClub} />
                             )}
                             {arrClubs.map((club) => (
                                 <div key={club.id} className={`${styles.club} ${clubeSelecionado?.nome === club.nome ? styles.clubeSelecionado : ''}`}>
@@ -330,7 +320,7 @@ function GerenciarClubes() {
                                         <p>Mascote: {club.mascote}</p>
                                     </div>
                                     <div className={styles.clubSettings}>
-                                        <FontAwesomeIcon className={styles.editIcon} icon={faEdit} onClick={() => openUpdateClubModal(club)} />
+                                        <UpdateClub clube={club} handleUpdateClube={handleUpdateClub} />
                                         <FontAwesomeIcon className={styles.trashIcon} icon={faTrash} onClick={() => removeClub(club)} />
 
                                         <AddPlayer posicoes={posicoes} handleAddPlayer={handleAddPlayer} clubeId={club.id} />
@@ -347,7 +337,6 @@ function GerenciarClubes() {
                                     <tr>
                                         <th></th>
                                         <th>Nome</th>
-                                        {/* <th>Data de Nascimento</th> */}
                                         <th>Nacionalidade</th>
                                         <th>Número da Camisa</th>
                                         <th>Posição</th>
@@ -361,7 +350,6 @@ function GerenciarClubes() {
                                         <tr key={jogador.id}>
                                             <td>{index + 1}º </td>
                                             <td>{jogador.nome}</td>
-                                            {/* <td>{jogador.dataNascimento.toString()}</td> */}
                                             <td>{jogador.nacionalidade}</td>
                                             <td>{jogador.numeroCamisa}</td>
                                             <td>
@@ -369,7 +357,6 @@ function GerenciarClubes() {
                                             </td>
                                             <td>{calcularIdade(jogador.dataNascimento)}</td>
                                             <td><FontAwesomeIcon icon={faTrash} onClick={() => deletePlayer(jogador)} /></td>
-                                            {/* <td><FontAwesomeIcon icon={faUserEdit} onClick={() => openUpdatePlayerModal(jogador)} /></td> */}
                                             <td><UpdatePlayer handleUpdatePlayer={updadePlayer} posicoes={posicoes} jogador={jogador} /></td>
                                         </tr>
                                     ))}

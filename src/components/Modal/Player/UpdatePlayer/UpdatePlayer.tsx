@@ -1,12 +1,3 @@
-// import { useForm } from 'react-hook-form';
-// import { IJogador } from '../../../../interfaces/Jogador';
-// import styles from './UpdatePlayer.module.css';
-// import { yupResolver } from '@hookform/resolvers/yup';
-// import { useEffect, useState } from 'react';
-// import { IPosicao } from '../../../../interfaces/Posicao';
-// import { updatejogadorValidationSchema } from '../../../../utils/updateJogadorValidation';
-// import { obterPosicoes } from '../../../../services/player/playerService';
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../ui/dialog";
 import { faUserEdit, faX } from "@fortawesome/free-solid-svg-icons";
@@ -96,7 +87,7 @@ function UpdatePlayer({ jogador, posicoes, handleUpdatePlayer }: AddJogadorProps
     return (
         <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
             <DialogTrigger asChild>
-                <FontAwesomeIcon icon={faUserEdit} />
+                <FontAwesomeIcon icon={faUserEdit} className="text-blue-500 cursor-pointer"/>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
