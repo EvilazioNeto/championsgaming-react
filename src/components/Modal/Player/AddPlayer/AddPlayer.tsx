@@ -10,11 +10,6 @@ import { IJogador } from "../../../../interfaces/Jogador";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../../../ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../ui/select";
 import { IPosicao } from "../../../../interfaces/Posicao";
-import { Popover, PopoverContent, PopoverTrigger } from "../../../ui/popover";
-import { cn } from "../../../../lib/utils";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { Calendar } from "../../../ui/calendar";
 import { useEffect, useState } from "react";
 import { Label } from "../../../ui/label";
 import { formatFile } from "../../../../utils/formatFile";
@@ -43,8 +38,9 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
             nome: '',
             posicaoId: 1,
             nacionalidade: '',
-            numeroCamisa: 1,
+            numeroCamisa: '',
             dataNascimento: '',
+            fotoUrl: ''
         }
     });
 
@@ -54,7 +50,6 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
     }, [isDialogOpen]);
 
     const onSubmit = (data: Omit<IJogador, 'id' | 'clubeId'>) => {
-        console.log(data)
         if (clubeId) {
             handleAddPlayer({ ...data, clubeId: clubeId });
         }
@@ -69,7 +64,7 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
             let uploadFinished = await Promise.resolve(uploadedPromises)
 
             setPromiseFoto(uploadFinished);
-            console.log(uploadFinished)
+            form.setValue('fotoUrl', uploadFinished.downloadURL);
         }
     }
 
@@ -83,6 +78,7 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                 console.log("arquivo deletado com sucesso!");
                 toast.success("Arquivo deletado");
                 setPromiseFoto(null)
+                form.setValue('fotoUrl', '');
 
             }).catch((error) => {
                 console.log(error + ": erro ao deletar");
@@ -102,7 +98,7 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                 </DialogHeader>
                 <Form {...form}>
                     <form className="flex flex-col gap-2" onSubmit={form.handleSubmit(onSubmit)}>
-                        <FormField control={form.control} name="fotoUrl" render={({ field }) => (
+                        <FormField control={form.control} name="fotoUrl" render={() => (
                             <FormItem>
                                 <FormLabel>Foto do jogador</FormLabel>
                                 <FormControl>
@@ -114,7 +110,7 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                                             className="hidden"
                                         />
                                         <Label htmlFor="picture" className="block w-full text-sm text-center text-white bg-blue-500 transition transition-duration: 150ms hover:bg-blue-600 cursor-pointer rounded-lg p-2">
-                                            Foto do jogador
+                                            Anexe a foto
                                         </Label>
                                         <div className="flex justify-between items-center">
                                             <Link className="text-blue-500 underline" target="_blank" to={`${promiseFoto?.downloadURL}`}>
@@ -142,7 +138,7 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Posições</FormLabel>
-                                    <Select onValueChange={field.onChange}>
+                                    <Select defaultValue={String(field.value)} onValueChange={field.onChange}>
                                         <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue>{posicoes.find(pos => pos.id === field.value)?.nome}</SelectValue>
@@ -182,7 +178,7 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                             <FormItem className="flex flex-col">
                                 <FormLabel>Data de Nascimento</FormLabel>
                                 <FormControl>
-                                    <Popover>
+                                    {/* <Popover>
                                         <PopoverTrigger asChild>
                                             <FormControl>
                                                 <Button
@@ -212,7 +208,12 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                                                 initialFocus
                                             />
                                         </PopoverContent>
-                                    </Popover>
+                                    </Popover> */}
+                                    <Input
+                                        className="mt-1 block w-full  px-3 py-2 border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                        type="date"
+                                        {...field}
+                                    />
                                 </FormControl>
                             </FormItem>
                         )} />

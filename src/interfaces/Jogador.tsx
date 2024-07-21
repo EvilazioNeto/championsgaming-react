@@ -5,5 +5,6 @@ export interface IJogador {
     dataNascimento: any; 
     posicaoId: number;
     nacionalidade: string;
-    numeroCamisa: number;
+    numeroCamisa: any;
+    fotoUrl: string;
 }

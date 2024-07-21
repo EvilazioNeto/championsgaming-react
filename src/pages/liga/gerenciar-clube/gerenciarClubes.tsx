@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { ICampeonato } from '../../../interfaces/Campeonato';
 import AddClub from '../../../components/Modal/Club/AddClub/AddClub';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faUser, faUserEdit, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../../contexts/AuthProvider/useAuth';
 import { useParams } from 'react-router-dom';
 import AddPlayer from '../../../components/Modal/Player/AddPlayer/AddPlayer';
@@ -21,9 +21,6 @@ import UpdateClub from '../../../components/Modal/Club/UpdateClub/UpdateClub';
 import { atualizarJogadorPorId, criarJogador, deletarJogadorPorId, obterJogadoresDoClubePorId, obterPosicoes } from '../../../services/player/playerService';
 import { criarClube, criarClubeCampeonatoEstatisticas, deletarCampeonatoClubeEstatisticas, deletarClubePorId, getCampeonatoEstatisticas } from '../../../services/api/club/clubService';
 import { Button } from '../../../components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '../../../components/ui/dialog';
-import { Label } from '../../../components/ui/label';
-import { Input } from '../../../components/ui/input';
 
 function GerenciarClubes() {
     const [loading, setLoading] = useState<boolean>(false)
@@ -211,10 +208,11 @@ function GerenciarClubes() {
                 dataNascimento: formatToDate(data.dataNascimento),
                 posicaoId: data.posicaoId,
                 nacionalidade: data.nacionalidade,
-                numeroCamisa: data.numeroCamisa,
-                clubeId: data.clubeId
+                numeroCamisa: Number(data.numeroCamisa),
+                clubeId: data.clubeId,
+                fotoUrl: data.fotoUrl
             }
-
+            console.log(dados)
             await criarJogador(dados)
 
             // if (typeof response === 'number') {
@@ -284,32 +282,22 @@ function GerenciarClubes() {
         }
     }
 
-    async function updadePlayer(novosDados: Omit<IJogador, 'id' | 'clubeId'>) {
-        const dados = {
-            nome: novosDados.nome,
-            dataNascimento: formatToDate(novosDados.dataNascimento),
-            posicaoId: novosDados.posicaoId,
-            nacionalidade: novosDados.nacionalidade,
-            numeroCamisa: novosDados.numeroCamisa
+    async function updadePlayer(jogadorAtt: IJogador) {
+        const dadosAtt: IJogador = {
+            ...jogadorAtt,
+            numeroCamisa: parseInt(jogadorAtt.numeroCamisa),
+            dataNascimento: formatToDate(jogadorAtt.dataNascimento),
+
         }
         try {
-            if (selectedPlayer) {
-                const response = await atualizarJogadorPorId(selectedPlayer?.id, dados)
-                if (response instanceof Error) {
-                    return;
-                } else {
-                    const i = jogadores.indexOf(selectedPlayer)
-                    jogadores.splice(i, 1)
-
-                    const jogadorAtualizado = {
-                        ...dados,
-                        id: selectedPlayer.id,
-                        clubeId: selectedPlayer.clubeId
-                    }
-                    setJogadores([...jogadores, jogadorAtualizado])
-
-                }
+            const response = await atualizarJogadorPorId(jogadorAtt.id, dadosAtt)
+            if (response instanceof Error) {
+                return;
+            } else {
+                const jogadoresAtualizados = jogadores.filter(jogador => jogador.id !== dadosAtt.id);
+                setJogadores([...jogadoresAtualizados, dadosAtt]);
             }
+
         } catch (error) {
             console.log(error)
         }
@@ -318,7 +306,7 @@ function GerenciarClubes() {
     return (
         <>
             {loading && <Loading />}
-            {modalUpdatePlayer && <UpdatePlayer player={selectedPlayer} handleUpdatePlayer={updadePlayer} fecharModal={() => setModalUpdatePlayer(false)} />}
+            {/* {modalUpdatePlayer && <UpdatePlayer player={selectedPlayer} handleUpdatePlayer={updadePlayer} fecharModal={() => setModalUpdatePlayer(false)} />} */}
             {modal && <AddClub handleAddClube={handleAddClub} fecharModal={() => setModal(false)} />}
             {modalUpdateClub && <UpdateClub handleUpdateClube={handleUpdateClub} club={clubeSelecionado} fecharModal={() => setModalUpdateCLub(false)} />}
             <main className={styles.gerenciarClubeContainer}>
@@ -381,7 +369,8 @@ function GerenciarClubes() {
                                             </td>
                                             <td>{calcularIdade(jogador.dataNascimento)}</td>
                                             <td><FontAwesomeIcon icon={faTrash} onClick={() => deletePlayer(jogador)} /></td>
-                                            <td><FontAwesomeIcon icon={faUserEdit} onClick={() => openUpdatePlayerModal(jogador)} /></td>
+                                            {/* <td><FontAwesomeIcon icon={faUserEdit} onClick={() => openUpdatePlayerModal(jogador)} /></td> */}
+                                            <td><UpdatePlayer handleUpdatePlayer={updadePlayer} posicoes={posicoes} jogador={jogador} /></td>
                                         </tr>
                                     ))}
                                 </tbody>
