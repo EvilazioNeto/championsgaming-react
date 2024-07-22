@@ -39,13 +39,11 @@ function GerenciarJogos() {
     const [clube1Id, setClube1Id] = useState<number | undefined>(undefined);
     const [clube2Id, setClube2Id] = useState<number | undefined>(undefined);
     const [jogadores, setJogadores] = useState<IJogador[]>([]);
-    const [modalListPlayers, setModalListPlayers] = useState<boolean>(false);
-    const [modalPlayerStats, setModalPlayerStats] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [escalacaoClube1, setEscalacaoClube1] = useState<IJogador[]>([]);
     const [jogadoresJogosStats, setJogadoresJogosStats] = useState<Omit<IJogadorJogo, 'id' | 'jogoId'>[]>([]);
     const [escalacaoClube2, setEscalacaoClube2] = useState<IJogador[]>([]);
-    const [jogadorSelecionadoStats, setJogadorSelecionadoStats] = useState<Omit<IJogadorJogo, 'id' | 'jogoId'>>();
+    const [jogadorSelecionadoStats, setJogadorSelecionadoStats] = useState<Omit<IJogadorJogo, 'id' | 'jogoId'>>({} as IJogadorJogo);
     const [golsClube1, setGolsClube1] = useState<number>(0);
     const [golsClube2, setGolsClube2] = useState<number>(0);
     const [posicoesClube1, setPosicoesClube1] = useState<IPosicoesProps[]>([
@@ -79,9 +77,9 @@ function GerenciarJogos() {
         resolver: yupResolver(jogosValidationSchema)
     })
 
-    useEffect(() => {
-        console.log(jogadoresJogosStats)
-    }, [jogadoresJogosStats])
+    // useEffect(() => {
+    //     console.log(jogadoresJogosStats)
+    // }, [jogadoresJogosStats])
 
     useEffect(() => {
         async function obterJogos() {
@@ -96,7 +94,6 @@ function GerenciarJogos() {
             }
         }
         obterJogos()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     let idToNumber: number
@@ -179,7 +176,6 @@ function GerenciarJogos() {
                 }
             })
             setJogadores(jogadores);
-            setModalListPlayers(true);
         }
     }
 
@@ -196,13 +192,11 @@ function GerenciarJogos() {
                     jogadorId: jogador.id
                 }
                 setJogadoresJogosStats([...jogadoresJogosStats, jogadorJogoStats])
-                setModalListPlayers(false)
             }
         } else {
             const jogadorJaEscalado = escalacaoClube2.find((jogadorEscalado) => jogadorEscalado.id === jogador.id);
             if (!jogadorJaEscalado) {
                 setEscalacaoClube2([...escalacaoClube2, jogador]);
-                setModalListPlayers(false);
                 const jogadorJogoStats: Omit<IJogadorJogo, 'id' | 'jogoId'> = {
                     gols: 0,
                     assistencias: 0,
@@ -266,8 +260,9 @@ function GerenciarJogos() {
 
     function selecionarJogadorStats(jogador: IJogador) {
         const jogadorStats = jogadoresJogosStats.find((jogadorStats) => jogadorStats.jogadorId === jogador.id)
-        setJogadorSelecionadoStats(jogadorStats)
-        setModalPlayerStats(true)
+        if (jogadorStats) {
+            setJogadorSelecionadoStats(jogadorStats)
+        }
     }
 
     function handleJogadorStats(jogStats: Omit<IJogadorJogo, 'id' | 'jogoId'>) {
@@ -281,7 +276,6 @@ function GerenciarJogos() {
 
     useEffect(() => {
         handleGols();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [jogadoresJogosStats]);
 
     function handleGols() {
@@ -415,7 +409,6 @@ function GerenciarJogos() {
                 } catch (error) {
                     console.log(error)
                 }
-
             }
         }
     }
@@ -442,11 +435,10 @@ function GerenciarJogos() {
         }
     }
 
+
     return (
         <>
             {loading && <Loading />}
-            {modalPlayerStats && <PlayerStats handleJogadorStats={handleJogadorStats} jogadorStats={jogadorSelecionadoStats} fecharModal={() => setModalPlayerStats(false)} />}
-            {modalListPlayers && <ListPlayers selecionarJogador={selecionarJogador} fecharModal={() => setModalListPlayers(false)} jogadores={jogadores} />}
             <main className={styles.gerenciarJogosContainer}>
                 <section>
                     <div className={styles.rodadasBox}>
@@ -463,7 +455,7 @@ function GerenciarJogos() {
                                     const clube1 = arrClubs.find((clube) => clube.id === jogo.clube1Id);
                                     const clube2 = arrClubs.find((clube) => clube.id === jogo.clube2Id);
                                     return clube1 && clube2 && (
-                                        <div className={styles.jogo}>
+                                        <div key={jogo.id} className={styles.jogo}>
                                             <p>{clube1.nome} {jogo.golClube1} x {jogo.golClube2} {clube2.nome}</p>
                                         </div>
                                     )
@@ -502,13 +494,13 @@ function GerenciarJogos() {
                                         return jogadorEscalado ? (
                                             <div key={i} className={`${posicao.classe} ${styles.jogador}`}>
                                                 <p>{jogadorEscalado.nome}</p>
-                                                <FontAwesomeIcon icon={faUserEdit} onClick={() => selecionarJogadorStats(jogadorEscalado)} />
+                                                <PlayerStats jogador={jogadorEscalado} selecionarJogadorStats={() => selecionarJogadorStats(jogadorEscalado)} jogadorStats={jogadorSelecionadoStats} handleJogadorStats={handleJogadorStats} />
                                                 <FontAwesomeIcon icon={faX} className={styles.removePlayer} onClick={() => removePlayer(jogadorEscalado)} />
                                             </div>
                                         ) : (
                                             <div key={i} onClick={() => obterJogadorDoClube(posicao.id, clube1Id)} className={`${posicao.classe} ${styles.jogador}`}>
                                                 <p>{posicao.nome}</p>
-                                                <FontAwesomeIcon icon={faAdd} />
+                                                <ListPlayers selecionarJogador={selecionarJogador} jogadores={jogadores} />
                                             </div>
                                         );
                                     })}
@@ -537,13 +529,13 @@ function GerenciarJogos() {
                                         return jogadorEscalado ? (
                                             <div key={i} className={`${posicao.classe} ${styles.jogador}`}>
                                                 <p>{jogadorEscalado.nome}</p>
-                                                <FontAwesomeIcon icon={faUserEdit} onClick={() => selecionarJogadorStats(jogadorEscalado)} />
+                                                <PlayerStats jogador={jogadorEscalado} selecionarJogadorStats={() => selecionarJogadorStats(jogadorEscalado)} jogadorStats={jogadorSelecionadoStats} handleJogadorStats={handleJogadorStats} />
                                                 <FontAwesomeIcon icon={faX} className={styles.removePlayer} onClick={() => removePlayer(jogadorEscalado)} />
                                             </div>
                                         ) : (
                                             <div key={i} onClick={() => obterJogadorDoClube(posicao.id, clube2Id)} className={`${posicao.classe} ${styles.jogador}`}>
                                                 <p>{posicao.nome}</p>
-                                                <FontAwesomeIcon icon={faAdd} />
+                                                <ListPlayers selecionarJogador={selecionarJogador} jogadores={jogadores} />
                                             </div>
                                         );
                                     })}

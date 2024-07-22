@@ -1,97 +1,104 @@
-import { useEffect, useState } from 'react';
-import { IJogadorJogo } from '../../../../interfaces/JogadorJogo';
-import styles from './PlayerStats.module.css';
-import { obterJogadorPorId } from '../../../../services/player/playerService';
-import { IJogador } from '../../../../interfaces/Jogador';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useForm } from 'react-hook-form';
-import { jogadorJogoStatsValidationSchema } from '../../../../utils/jogadorJogoStatsValidation';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../ui/dialog";
+import { faUserEdit } from "@fortawesome/free-solid-svg-icons";
+import { IJogadorJogo } from "../../../../interfaces/JogadorJogo";
+import { IJogador } from "../../../../interfaces/Jogador";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { jogadorJogoStatsValidationSchema } from "../../../../utils/jogadorJogoStatsValidation";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "../../../ui/form";
+import { Input } from "../../../ui/input";
+import { Button } from "../../../ui/button";
 
 interface playerStatsProps {
     jogadorStats?: Omit<IJogadorJogo, 'id' | 'jogoId'>
-    fecharModal: () => void;
+    jogador: IJogador;
     handleJogadorStats: (jogadorStats: Omit<IJogadorJogo, 'id' | 'jogoId'>) => void;
+    selecionarJogadorStats: () => void;
 }
 
-function PlayerStats({ fecharModal, jogadorStats, handleJogadorStats }: playerStatsProps) {
-    const [jogador, setJogador] = useState<IJogador | Error>();
-    const { register, handleSubmit, formState: { errors } } = useForm<Omit<IJogadorJogo, 'id' | 'jogadorId' | 'jogoId'>>({
+function PlayerStats({ handleJogadorStats, selecionarJogadorStats, jogadorStats, jogador }: playerStatsProps) {
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+
+    const form = useForm<Omit<IJogadorJogo, 'id' | 'jogadorId' | 'jogoId'>>({
         resolver: yupResolver(jogadorJogoStatsValidationSchema),
+        mode: 'onChange',
     });
 
+    useEffect(() => {
+        if (jogadorStats) {
+            form.reset({
+                assistencias: jogadorStats.assistencias,
+                cartaoAmarelo: jogadorStats.cartaoAmarelo,
+                cartaoVermelho: jogadorStats.cartaoVermelho,
+                gols: jogadorStats.gols
+            });
+        }
+    }, [jogadorStats, form]);
 
     const onSubmit = (data: Omit<IJogadorJogo, 'id' | 'jogoId' | 'jogadorId'>) => {
         if (jogadorStats) {
             handleJogadorStats({ ...data, jogadorId: jogadorStats.jogadorId });
-            fecharModal();
+            setIsDialogOpen(false)
         }
     };
 
-    useEffect(() => {
-        async function obterJogador() {
-            if (jogadorStats) {
-                const jogadorSelec = await obterJogadorPorId(jogadorStats.jogadorId)
-                if (jogador instanceof Error) {
-                    return;
-                } else {
-                    setJogador(jogadorSelec)
-                }
-            }
-        }
-        obterJogador()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [jogadorStats])
-
     return (
-        <div className={styles.overlay}>
-            <div className={styles.playerStatsModal}>
-                <button onClick={() => fecharModal()} type='button'>FECHAR</button>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    {jogador instanceof Error ? (
-                        <h2>Erro ao buscar dados do jogador</h2>
-                    ) : (
-                        <h2>{jogador?.nome} - {jogador?.numeroCamisa}</h2>
-                    )}
-                    <p>Gols</p>
-                    <input
-                        type="number"
-                        min={0}
-                        defaultValue={jogadorStats?.gols}
-                        {...register('gols')}
-                    />
-                    {errors.gols && <p>{errors.gols.message}</p>}
-                    <p>Assistências</p>
-                    <input
-                        type="number"
-                        min={0}
-                        defaultValue={jogadorStats?.assistencias}
-                        {...register('assistencias')}
-                    />
-                    {errors.assistencias && <p>{errors.assistencias.message}</p>}
-                    <p>Cartão Amarelo</p>
-                    <input
-                        type="number"
-                        max={2}
-                        min={0}
-                        maxLength={2}
-                        defaultValue={jogadorStats?.cartaoAmarelo}
-                        {...register('cartaoAmarelo')}
-                    />
-                    {errors.cartaoAmarelo && <p>{errors.cartaoAmarelo.message}</p>}
-                    <p>Cartão Vermelho</p>
-                    <input
-                        type="number"
-                        max={1}
-                        min={0}
-                        defaultValue={jogadorStats?.cartaoVermelho}
-                        {...register('cartaoVermelho')}
-                    />
-                    {errors.cartaoVermelho && <p>{errors.cartaoVermelho.message}</p>}
-                    <button>ATUALIZAR</button>
-                </form>
-            </div>
-        </div>
-    )
+        <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
+            <DialogTrigger asChild>
+                <FontAwesomeIcon onClick={selecionarJogadorStats} icon={faUserEdit} className="text-black cursor-pointer" />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>{jogador.nome}</DialogTitle>
+                </DialogHeader>
+                <Form {...form}>
+                    <form className="flex flex-col gap-2" onSubmit={form.handleSubmit(onSubmit)}>
+                        <FormField control={form.control} name="gols" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Gols</FormLabel>
+                                <FormControl>
+                                    <Input min={0} type="number" placeholder="Gols do jogador" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="assistencias" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Assistências</FormLabel>
+                                <FormControl>
+                                    <Input min={0} type="number" placeholder="Assistências do jogador" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="cartaoAmarelo" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Cartão Amarelo</FormLabel>
+                                <FormControl>
+                                    <Input min={0} type="number" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )} />
+
+                        <FormField control={form.control} name="cartaoVermelho" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Cartão Vermelho</FormLabel>
+                                <FormControl>
+                                    <Input min={0} type="number" {...field} />
+                                </FormControl>
+                            </FormItem>
+                        )} />
+
+                        <DialogFooter>
+                            <Button type="submit">Atualizar</Button>
+                        </DialogFooter>
+                    </form>
+                </Form>
+            </DialogContent>
+        </Dialog>
+    );
 }
 
 export default PlayerStats;

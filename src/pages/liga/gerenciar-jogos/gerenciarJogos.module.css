@@ -228,6 +228,8 @@
                         .campoImg {
                             width: 400px;
                             border-radius: .5rem;
+                            filter: brightness(0.7);
+                            z-index: -1;
                         }
 
                         .meia {
