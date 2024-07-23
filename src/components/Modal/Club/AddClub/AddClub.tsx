@@ -24,6 +24,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
 import { Label } from "../../../ui/label";
 import { faX } from "@fortawesome/free-solid-svg-icons";
+import { Progress } from "../../../ui/progress";
 
 interface AddClubProps {
     handleAddClube: (data: Omit<IClube, 'id'>) => void;
@@ -33,6 +34,7 @@ function AddClub({ handleAddClube }: AddClubProps) {
     const auth = useAuth();
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [promiseFoto, setPromiseFoto] = useState<FileInformation | null>(null);
+    const [progress, setProgress] = useState<number>(0);
 
     const form = useForm<Omit<IClube, 'id' | 'usuarioId'>>({
         resolver: yupResolver(clubValidationSchema),
@@ -54,16 +56,18 @@ function AddClub({ handleAddClube }: AddClubProps) {
 
     useEffect(() => {
         form.reset();
-        setPromiseFoto(null)
+        setPromiseFoto(null);
+        setProgress(0)
     }, [isDialogOpen]);
 
     async function handlepromiseFoto(e: React.ChangeEvent<HTMLInputElement>) {
         if (e.target.files && e.target.files.length > 0) {
-            const uploadedPromises = formatFile(e.target.files[0], auth.id);
-            let uploadFinished = await Promise.resolve(uploadedPromises)
+            const uploadedPromises = await formatFile(e.target.files[0], auth.id, (progress) => {
+                setProgress(progress);
+            });
 
-            setPromiseFoto(uploadFinished);
-            form.setValue('fotoUrl', uploadFinished.downloadURL);
+            setPromiseFoto(uploadedPromises);
+            form.setValue('fotoUrl', uploadedPromises.downloadURL);
         }
     }
 
@@ -78,6 +82,7 @@ function AddClub({ handleAddClube }: AddClubProps) {
                 toast.success("Arquivo deletado");
                 setPromiseFoto(null)
                 form.setValue('fotoUrl', '');
+                setProgress(0)
 
             }).catch((error) => {
                 console.log(error + ": erro ao deletar");
@@ -111,12 +116,16 @@ function AddClub({ handleAddClube }: AddClubProps) {
                                         <Label htmlFor="picture" className="block w-full text-sm text-center text-white bg-blue-500 transition transition-duration: 150ms hover:bg-blue-600 cursor-pointer rounded-lg p-2">
                                             Anexe a foto
                                         </Label>
-                                        <div className="flex justify-between items-center">
-                                            <Link className="text-blue-500 underline" target="_blank" to={`${promiseFoto?.downloadURL}`}>
-                                                {promiseFoto?.name}
-                                            </Link>
-                                            {promiseFoto && <FontAwesomeIcon onClick={() => deleteFile(promiseFoto)} icon={faX} className="text-red-500 cursor-pointer" />}
-                                        </div>
+                                        {promiseFoto ? (
+                                            <div className="flex justify-between items-center">
+                                                <Link className="text-blue-500 underline" target="_blank" to={`${promiseFoto?.downloadURL}`}>
+                                                    {promiseFoto?.name}
+                                                </Link>
+                                                {promiseFoto && <FontAwesomeIcon onClick={() => deleteFile(promiseFoto)} icon={faX} className="text-red-500 cursor-pointer" />}
+                                            </div>
+                                        ) : (
+                                            progress > 0 && <Progress value={progress}/>
+                                        )}
                                     </div>
                                 </FormControl>
                             </FormItem>

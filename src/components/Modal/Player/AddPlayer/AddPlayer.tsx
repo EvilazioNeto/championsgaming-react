@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import { deleteObject, ref } from "firebase/storage";
 import { storage } from "../../../../firebase";
 import FileInformation from "../../../../interfaces/FileInformation";
+import { Progress } from "../../../ui/progress";
 
 interface AddPlayerProps {
     handleAddPlayer: (data: Omit<IJogador, 'id'>) => void;
@@ -30,6 +31,7 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
     const auth = useAuth();
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [promiseFoto, setPromiseFoto] = useState<FileInformation | null>(null);
+    const [progress, setProgress] = useState<number>(0);
 
     const form = useForm<Omit<IJogador, 'id' | 'clubeId'>>({
         resolver: yupResolver(jogadorValidationSchema),
@@ -46,7 +48,8 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
 
     useEffect(() => {
         form.reset();
-        setPromiseFoto(null)
+        setPromiseFoto(null);
+        setProgress(0);
     }, [isDialogOpen]);
 
     const onSubmit = (data: Omit<IJogador, 'id' | 'clubeId'>) => {
@@ -60,11 +63,12 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
 
     async function handlepromiseFoto(e: React.ChangeEvent<HTMLInputElement>) {
         if (e.target.files && e.target.files.length > 0) {
-            const uploadedPromises = formatFile(e.target.files[0], auth.id);
-            let uploadFinished = await Promise.resolve(uploadedPromises)
+            const uploadedPromises = await formatFile(e.target.files[0], auth.id, (progress) => {
+                setProgress(progress);
+            });
 
-            setPromiseFoto(uploadFinished);
-            form.setValue('fotoUrl', uploadFinished.downloadURL);
+            setPromiseFoto(uploadedPromises);
+            form.setValue('fotoUrl', uploadedPromises.downloadURL);
         }
     }
 
@@ -79,6 +83,7 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                 toast.success("Arquivo deletado");
                 setPromiseFoto(null)
                 form.setValue('fotoUrl', '');
+                setProgress(0);
 
             }).catch((error) => {
                 console.log(error + ": erro ao deletar");
@@ -112,12 +117,16 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                                         <Label htmlFor="picture" className="block w-full text-sm text-center text-white bg-blue-500 transition transition-duration: 150ms hover:bg-blue-600 cursor-pointer rounded-lg p-2">
                                             Anexe a foto
                                         </Label>
-                                        <div className="flex justify-between items-center">
-                                            <Link className="text-blue-500 underline" target="_blank" to={`${promiseFoto?.downloadURL}`}>
-                                                {promiseFoto?.name}
-                                            </Link>
-                                            {promiseFoto && <FontAwesomeIcon onClick={() => deleteFile(promiseFoto)} icon={faX} className="text-red-500 cursor-pointer" />}
-                                        </div>
+                                        {promiseFoto ? (
+                                            <div className="flex justify-between items-center">
+                                                <Link className="text-blue-500 underline" target="_blank" to={`${promiseFoto?.downloadURL}`}>
+                                                    {promiseFoto?.name}
+                                                </Link>
+                                                {promiseFoto && <FontAwesomeIcon onClick={() => deleteFile(promiseFoto)} icon={faX} className="text-red-500 cursor-pointer" />}
+                                            </div>
+                                        ) : (
+                                            progress > 0 && <Progress value={progress} />
+                                        )}
                                     </div>
                                 </FormControl>
                             </FormItem>

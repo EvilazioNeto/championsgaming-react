@@ -19,6 +19,7 @@ import { useAuth } from "../../../../contexts/AuthProvider/useAuth";
 import { Button } from "../../../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../ui/select";
 import { IPosicao } from "../../../../interfaces/Posicao";
+import { Progress } from "../../../ui/progress";
 
 interface AddJogadorProps {
     jogador: IJogador;
@@ -30,6 +31,7 @@ function UpdatePlayer({ jogador, posicoes, handleUpdatePlayer }: AddJogadorProps
     const auth = useAuth();
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
     const [promiseFoto, setPromiseFoto] = useState<FileInformation | null>();
+    const [progress, setProgress] = useState<number>(0);
 
     const form = useForm<Omit<IJogador, 'id' | 'clubeId'>>({
         resolver: yupResolver(updatejogadorValidationSchema),
@@ -46,11 +48,12 @@ function UpdatePlayer({ jogador, posicoes, handleUpdatePlayer }: AddJogadorProps
 
     async function handlepromiseFoto(e: React.ChangeEvent<HTMLInputElement>) {
         if (e.target.files && e.target.files.length > 0) {
-            const uploadedPromises = formatFile(e.target.files[0], auth.id);
-            let uploadFinished = await Promise.resolve(uploadedPromises)
+            const uploadedPromises = await formatFile(e.target.files[0], auth.id, (progress) => {
+                setProgress(progress);
+            });
 
-            setPromiseFoto(uploadFinished);
-            form.setValue('fotoUrl', uploadFinished.downloadURL);
+            setPromiseFoto(uploadedPromises);
+            form.setValue('fotoUrl', uploadedPromises.downloadURL);
         }
     }
 
@@ -65,6 +68,7 @@ function UpdatePlayer({ jogador, posicoes, handleUpdatePlayer }: AddJogadorProps
                 toast.success("Arquivo deletado");
                 setPromiseFoto(null)
                 form.setValue('fotoUrl', '');
+                setProgress(0);
 
             }).catch((error) => {
                 console.log(error + ": erro ao deletar");
@@ -75,7 +79,8 @@ function UpdatePlayer({ jogador, posicoes, handleUpdatePlayer }: AddJogadorProps
 
     useEffect(() => {
         form.reset();
-        setPromiseFoto(null)
+        setPromiseFoto(null);
+        setProgress(0);
     }, [isDialogOpen]);
 
     const onSubmit: SubmitHandler<Omit<IJogador, 'id' | 'clubeId'>> = (data) => {
@@ -87,7 +92,7 @@ function UpdatePlayer({ jogador, posicoes, handleUpdatePlayer }: AddJogadorProps
     return (
         <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
             <DialogTrigger asChild>
-                <FontAwesomeIcon icon={faUserEdit} className="text-blue-500 cursor-pointer"/>
+                <FontAwesomeIcon icon={faUserEdit} className="text-blue-500 cursor-pointer" />
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -109,12 +114,16 @@ function UpdatePlayer({ jogador, posicoes, handleUpdatePlayer }: AddJogadorProps
                                         <Label htmlFor="picture" className="block w-full text-sm text-center text-white bg-blue-500 transition transition-duration: 150ms hover:bg-blue-600 cursor-pointer rounded-lg p-2">
                                             Anexe a foto
                                         </Label>
-                                        <div className="flex justify-between items-center">
-                                            <Link className="text-blue-500 underline" target="_blank" to={`${promiseFoto?.downloadURL}`}>
-                                                {promiseFoto?.name}
-                                            </Link>
-                                            {promiseFoto && <FontAwesomeIcon onClick={() => deleteFile(promiseFoto)} icon={faX} className="text-red-500 cursor-pointer" />}
-                                        </div>
+                                        {promiseFoto ? (
+                                            <div className="flex justify-between items-center">
+                                                <Link className="text-blue-500 underline" target="_blank" to={`${promiseFoto?.downloadURL}`}>
+                                                    {promiseFoto?.name}
+                                                </Link>
+                                                {promiseFoto && <FontAwesomeIcon onClick={() => deleteFile(promiseFoto)} icon={faX} className="text-red-500 cursor-pointer" />}
+                                            </div>
+                                        ) : (
+                                            progress > 0 && <Progress value={progress} />
+                                        )}
                                     </div>
                                 </FormControl>
                             </FormItem>

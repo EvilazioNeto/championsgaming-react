@@ -175,14 +175,16 @@ function Layout({ children }: { children: ReactNode }) {
                             </nav>
                             <div className="mt-auto">
                                 <Card>
-                                    <CardHeader>
-                                        <CardTitle>Upgrade to Pro</CardTitle>
+                                    <CardHeader className="p-2 pt-0 md:p-4">
+                                        <CardTitle>Upgrade para Pro</CardTitle>
                                         <CardDescription>
-                                            Unlock all features and get unlimited access to our
-                                            support team.
+                                            Desbloqueie todos os recursos, incluindo
+                                            a capacidade de criar ligas para diferentes esportes,
+                                            como basquete, vôlei e muito mais.
+                                            Obtenha acesso ilimitado à nossa equipe de suporte.
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent>
+                                    <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
                                         <Button size="sm" className="w-full">
                                             Upgrade
                                         </Button>
