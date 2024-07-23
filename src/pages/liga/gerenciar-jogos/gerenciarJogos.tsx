@@ -441,14 +441,13 @@ function GerenciarJogos() {
             {loading && <Loading />}
             <main className={styles.gerenciarJogosContainer}>
                 <section>
-                    <div className={styles.rodadasBox}>
+                    {/* <div className={styles.rodadasBox}>
                         <h2>JOGOS</h2>
                         <select className={styles.selecionarRodada} onChange={(e) => handleRodadas(Number(e.target.value))}>
                             {campeonato && Array.from({ length: campeonato?.numeroRodadas }, (_, i) => (
                                 <option value={i + 1} key={i}>{i + 1}° rodada</option>
                             ))}
                         </select>
-                        {/* <button className={styles.addJogoBtn}>NOVO JOGO</button> */}
                         <div className={styles.jogosBox}>
                             {jogos.length > 0 ? (
                                 jogos.map((jogo) => {
@@ -467,7 +466,7 @@ function GerenciarJogos() {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </div> */}
                     <div className={styles.jogoContainer}>
                         <div className={styles.placar}>
                             <h2>{golsClube1} x {golsClube2}</h2>

@@ -1,8 +1,8 @@
 @import '../../../styles/colors.css';
 
 .gerenciarJogosContainer {
-    margin-top: 133px;
-    margin-left: 240px;
+    /* margin-top: 133px;
+    margin-left: 240px; */
 
     & section {
         margin: 0 auto;

@@ -1,8 +1,8 @@
 @import '../../../styles/colors.css';
 
 .mainCriarLiga {
-    margin-top: 133px;
-    margin-left: 240px;
+    /* margin-top: 133px;
+    margin-left: 240px; */
 
     & .formSection {
         gap: .5rem;

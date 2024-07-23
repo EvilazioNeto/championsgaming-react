@@ -9,8 +9,23 @@ import {
 } from "../components/ui/dropdown-menu"
 import { useTheme } from "../components/theme-provider"
 
-export function ModeToggle() {
-  const { setTheme } = useTheme()
+interface ModeToggleProps {
+  onChange: (theme: string) => void
+}
+
+export function ModeToggle({ onChange }: ModeToggleProps) {
+  const { setTheme } = useTheme();
+
+  function changeTheme(theme: string) {
+    onChange(theme)
+    if (theme === "light") {
+      setTheme("light");
+    } else if (theme === "dark") {
+      setTheme("dark");
+    } else {
+      setTheme("system");
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -22,13 +37,13 @@ export function ModeToggle() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>
+        <DropdownMenuItem onClick={() => changeTheme("light")}>
           Light
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>
+        <DropdownMenuItem onClick={() => changeTheme("dark")}>
           Dark
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
+        <DropdownMenuItem onClick={() => changeTheme("system")}>
           System
         </DropdownMenuItem>
       </DropdownMenuContent>

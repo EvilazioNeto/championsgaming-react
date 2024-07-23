@@ -21,6 +21,7 @@ import UpdateClub from '../../../components/Modal/Club/UpdateClub/UpdateClub';
 import { atualizarJogadorPorId, criarJogador, deletarJogadorPorId, obterJogadoresDoClubePorId, obterPosicoes } from '../../../services/player/playerService';
 import { criarClube, criarClubeCampeonatoEstatisticas, deletarCampeonatoClubeEstatisticas, deletarClubePorId, getCampeonatoEstatisticas } from '../../../services/api/club/clubService';
 import { Button } from '../../../components/ui/button';
+import { DeletarItemModal } from '../../../components/Modal/Deletar';
 
 function GerenciarClubes() {
     const [loading, setLoading] = useState<boolean>(false)
@@ -95,51 +96,45 @@ function GerenciarClubes() {
     }, [id, auth.id]);
 
     async function removeClub(data: IClube) {
-        const confirmar = confirm('Deseja remover ' + data.nome + ' da lista?')
+        try {
+            const clubesEstatisticas = await getCampeonatoEstatisticas(campeonato.id)
+            if (clubesEstatisticas instanceof Error) {
+                return;
+            } else {
+                const clubeTabelaInfo: IClubeCampeonato[] = clubesEstatisticas.filter((clubesEstatistica: IClubeCampeonato) => clubesEstatistica.clubeId === data.id)
 
-        if (confirmar) {
-            try {
-                const clubesEstatisticas = await getCampeonatoEstatisticas(campeonato.id)
-                if (clubesEstatisticas instanceof Error) {
+                const delTabelaInfoRes = await deletarCampeonatoClubeEstatisticas(clubeTabelaInfo[0].id)
+
+                if (delTabelaInfoRes instanceof Error) {
                     return;
                 } else {
-                    const clubeTabelaInfo: IClubeCampeonato[] = clubesEstatisticas.filter((clubesEstatistica: IClubeCampeonato) => clubesEstatistica.clubeId === data.id)
+                    const jogadoresClubRes = await obterJogadoresDoClubePorId(data.id)
 
-                    const delTabelaInfoRes = await deletarCampeonatoClubeEstatisticas(clubeTabelaInfo[0].id)
-
-                    if (delTabelaInfoRes instanceof Error) {
+                    if (jogadoresClubRes instanceof Error) {
                         return;
                     } else {
-                        const jogadoresClubRes = await obterJogadoresDoClubePorId(data.id)
-
-                        if (jogadoresClubRes instanceof Error) {
-                            return;
-                        } else {
-                            await Promise.all(
-                                jogadoresClubRes.map((jogador: IJogador) => Api.delete(`/jogadores/${jogador.id}`))
-                            );
-                        }
-
-                        const response = await deletarClubePorId(data.id)
-
-                        if (response instanceof Error) {
-                            return;
-                        } else {
-                            const i = arrClubs.indexOf(data)
-                            arrClubs.splice(i, 1)
-                            setArrClubs([...arrClubs]);
-                            setClubeSelecionado(arrClubs[0])
-                            getClubPlayers(arrClubs[0])
-                        }
-
+                        await Promise.all(
+                            jogadoresClubRes.map((jogador: IJogador) => Api.delete(`/jogadores/${jogador.id}`))
+                        );
                     }
+
+                    const response = await deletarClubePorId(data.id)
+
+                    if (response instanceof Error) {
+                        return;
+                    } else {
+                        const i = arrClubs.indexOf(data)
+                        arrClubs.splice(i, 1)
+                        setArrClubs([...arrClubs]);
+                        setClubeSelecionado(arrClubs[0])
+                        getClubPlayers(arrClubs[0])
+                    }
+
                 }
-
-
-            } catch (error) {
-                console.log(error)
-                toast.error("Erro ao deletar clube")
             }
+        } catch (error) {
+            console.log(error)
+            toast.error("Erro ao deletar clube")
         }
     }
 
@@ -256,21 +251,17 @@ function GerenciarClubes() {
     }
 
     async function deletePlayer(jogador: IJogador) {
-        const confirmar = confirm(`Deseja deletar o jogador ${jogador.nome}?`)
+        try {
+            const response = await deletarJogadorPorId(jogador.id)
 
-        if (confirmar) {
-            try {
-                const response = await deletarJogadorPorId(jogador.id)
-
-                if (response === undefined || response === null) {
-                    const index = jogadores.indexOf(jogador);
-                    jogadores.splice(index, 1);
-                    setJogadores([...jogadores]);
-                }
-
-            } catch (error) {
-                console.log(error)
+            if (response === undefined || response === null) {
+                const index = jogadores.indexOf(jogador);
+                jogadores.splice(index, 1);
+                setJogadores([...jogadores]);
             }
+
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -321,8 +312,7 @@ function GerenciarClubes() {
                                     </div>
                                     <div className={styles.clubSettings}>
                                         <UpdateClub clube={club} handleUpdateClube={handleUpdateClub} />
-                                        <FontAwesomeIcon className={styles.trashIcon} icon={faTrash} onClick={() => removeClub(club)} />
-
+                                        <DeletarItemModal deletarItem={() => removeClub(club)} itemExcluido={club.nome} />
                                         <AddPlayer posicoes={posicoes} handleAddPlayer={handleAddPlayer} clubeId={club.id} />
 
                                         <FontAwesomeIcon className={styles.editIcon} icon={faUser} onClick={() => getClubPlayers(club)} />
@@ -356,7 +346,7 @@ function GerenciarClubes() {
                                                 {posicoes.find(posicao => posicao.id === jogador.posicaoId)?.nome}
                                             </td>
                                             <td>{calcularIdade(jogador.dataNascimento)}</td>
-                                            <td><FontAwesomeIcon icon={faTrash} onClick={() => deletePlayer(jogador)} /></td>
+                                            <td><DeletarItemModal deletarItem={() => deletePlayer(jogador)} itemExcluido={jogador.nome} /></td>
                                             <td><UpdatePlayer handleUpdatePlayer={updadePlayer} posicoes={posicoes} jogador={jogador} /></td>
                                         </tr>
                                     ))}
