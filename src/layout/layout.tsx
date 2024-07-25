@@ -3,6 +3,7 @@ import {
     CircleUser,
     Home,
     LineChart,
+    LogOut,
     Menu,
     Search,
     Shield,
@@ -27,22 +28,34 @@ import {
 } from "../components/ui/dropdown-menu"
 import { Input } from "../components/ui/input"
 import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { ReactNode, useState } from "react"
 import { ModeToggle } from "../components/mode-toggle"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faFutbol } from "@fortawesome/free-solid-svg-icons"
 import logo_vermelho from '/logo-sem-fundo.png'
 import logo_branco from '/logo-sem-fundo-branco.png'
+import { useAuth } from "../contexts/AuthProvider/useAuth"
 
 function Layout({ children }: { children: ReactNode }) {
     const [corLogo, setCorLogo] = useState<string>('dark');
+    const [btnSelecionado, setBtnSelecionado] = useState<string>('Home');
+    const navigate = useNavigate();
+    const { logout } = useAuth();
 
     function onChangeTheme(e: string) {
         if (e === "dark") {
             setCorLogo("dark")
         } else {
             setCorLogo("light")
+        }
+    }
+
+    function sair() {
+        const confirmar = confirm("Deseja sair da sua conta?")
+        if (confirmar) {
+            logout();
+            navigate("/login")
         }
     }
 
@@ -60,35 +73,40 @@ function Layout({ children }: { children: ReactNode }) {
                         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
                             <Link
                                 to="/"
-                                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                                onClick={() => setBtnSelecionado('Home')}
+                                className={`${btnSelecionado === "Home" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
                                 <Home className="h-4 w-4" />
                                 Home
                             </Link>
                             <Link
                                 to="/criar-liga"
-                                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                                onClick={() => setBtnSelecionado('Criar liga')}
+                                className={`${btnSelecionado === "Criar liga" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
                                 <Shield className="h-4 w-4" />
                                 Criar liga
                             </Link>
                             <Link
                                 to="/minhas-ligas"
-                                className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+                                onClick={() => setBtnSelecionado('Minhas Ligas')}
+                                className={`${btnSelecionado === "Minhas Ligas" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
                                 <ShieldHalf className="h-4 w-4" />
                                 Minhas Ligas
                             </Link>
                             <Link
                                 to="#"
-                                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                                onClick={() => setBtnSelecionado('Artilheiros')}
+                                className={`${btnSelecionado === "Artilheiros" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
                                 <FontAwesomeIcon icon={faFutbol} className="h-4 w-4" />
                                 Artilheiros
                             </Link>
                             <Link
                                 to="#"
-                                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                                onClick={() => setBtnSelecionado('Analytics')}
+                                className={`${btnSelecionado === "Analytics" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
                                 <LineChart className="h-4 w-4" />
                                 Analytics
@@ -101,9 +119,8 @@ function Layout({ children }: { children: ReactNode }) {
                                 <CardTitle>Upgrade para Pro</CardTitle>
                                 <CardDescription>
                                     Desbloqueie todos os recursos, incluindo
-                                    a capacidade de criar ligas para diferentes esportes,
-                                    como basquete, vôlei e muito mais.
-                                    Obtenha acesso ilimitado à nossa equipe de suporte.
+                                    a capacidade de criar ligas para diferentes esportes.
+                                    Além de desbloquear as copas!
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
@@ -139,6 +156,7 @@ function Layout({ children }: { children: ReactNode }) {
                                 </Link>
                                 <Link
                                     to="/"
+                                    onClick={() => setBtnSelecionado('Home')}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >
                                     <Home className="h-4 w-4" />
@@ -146,6 +164,7 @@ function Layout({ children }: { children: ReactNode }) {
                                 </Link>
                                 <Link
                                     to="/criar-liga"
+                                    onClick={() => setBtnSelecionado('Criar liga')}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >
                                     <Shield className="h-4 w-4" />
@@ -153,13 +172,15 @@ function Layout({ children }: { children: ReactNode }) {
                                 </Link>
                                 <Link
                                     to="/minhas-ligas"
-                                    className="flex items-center gap-3 rounded-lg bg-muted px-3 py-2 text-primary transition-all hover:text-primary"
+                                    onClick={() => setBtnSelecionado('Minhas Ligas')}
+                                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >
                                     <ShieldHalf className="h-4 w-4" />
                                     Minhas Ligas
                                 </Link>
                                 <Link
                                     to="#"
+                                    onClick={() => setBtnSelecionado('Artilheiros')}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >
                                     <FontAwesomeIcon icon={faFutbol} className="h-4 w-4" />
@@ -167,6 +188,7 @@ function Layout({ children }: { children: ReactNode }) {
                                 </Link>
                                 <Link
                                     to="#"
+                                    onClick={() => setBtnSelecionado('Analytics')}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >
                                     <LineChart className="h-4 w-4" />
@@ -218,12 +240,12 @@ function Layout({ children }: { children: ReactNode }) {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                            <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>Settings</DropdownMenuItem>
-                            <DropdownMenuItem>Support</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer flex">Configurações</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer flex">Suporte</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>Logout</DropdownMenuItem>
+                            <DropdownMenuItem className="cursor-pointer flex justify-between" onClick={() => sair()}>Sair <LogOut /></DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </header>

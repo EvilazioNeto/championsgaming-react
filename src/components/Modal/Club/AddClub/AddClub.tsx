@@ -94,7 +94,7 @@ function AddClub({ handleAddClube }: AddClubProps) {
     return (
         <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
             <DialogTrigger asChild>
-                <Button type="button">ADICIONAR CLUBE</Button>
+                <Button variant="secondary" type="button">ADICIONAR CLUBE</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

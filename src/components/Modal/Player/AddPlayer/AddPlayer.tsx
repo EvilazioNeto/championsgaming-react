@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "../../../ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../ui/dialog";
 import { Input } from "../../../ui/input";
-import { faUserPlus, faX } from "@fortawesome/free-solid-svg-icons";
+import { faX } from "@fortawesome/free-solid-svg-icons";
 import { useForm } from "react-hook-form";
 import { jogadorValidationSchema } from "../../../../utils/jogadorValidation";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -20,6 +20,7 @@ import { deleteObject, ref } from "firebase/storage";
 import { storage } from "../../../../firebase";
 import FileInformation from "../../../../interfaces/FileInformation";
 import { Progress } from "../../../ui/progress";
+import { PlusCircle } from "lucide-react";
 
 interface AddPlayerProps {
     handleAddPlayer: (data: Omit<IJogador, 'id'>) => void;
@@ -95,7 +96,12 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
     return (
         <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
             <DialogTrigger asChild>
-                <FontAwesomeIcon icon={faUserPlus} />
+                <Button variant="secondary" size="sm" className="h-8 gap-1">
+                    <PlusCircle className="h-3.5 w-3.5" />
+                    <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                        Adicionar Jogador
+                    </span>
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

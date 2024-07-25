@@ -6,8 +6,6 @@ import { Api } from '../../../services/api/axios-config';
 import { toast } from 'react-toastify';
 import { ICampeonato } from '../../../interfaces/Campeonato';
 import AddClub from '../../../components/Modal/Club/AddClub/AddClub';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../../../contexts/AuthProvider/useAuth';
 import { useParams } from 'react-router-dom';
 import AddPlayer from '../../../components/Modal/Player/AddPlayer/AddPlayer';
@@ -22,22 +20,29 @@ import { atualizarJogadorPorId, criarJogador, deletarJogadorPorId, obterJogadore
 import { criarClube, criarClubeCampeonatoEstatisticas, deletarCampeonatoClubeEstatisticas, deletarClubePorId, getCampeonatoEstatisticas } from '../../../services/api/club/clubService';
 import { Button } from '../../../components/ui/button';
 import { DeletarItemModal } from '../../../components/Modal/Deletar';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../../../components/ui/carousel';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../../components/ui/card';
+import { ClipboardMinus, MoreHorizontal, Pencil } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table';
+import { Badge } from '../../../components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../../../components/ui/dropdown-menu';
+
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../../components/ui/alert-dialog';
+import { Label } from '../../../components/ui/label';
+import ITreinador from '../../../interfaces/Treinador';
+import AddCoach from '../../../components/Modal/Coach/AddCoach';
 
 function GerenciarClubes() {
     const [loading, setLoading] = useState<boolean>(false)
-    const [selectedPlayer, setSelectedPlayer] = useState<IJogador | null>(null);
     const [arrClubs, setArrClubs] = useState<IClube[]>([]);
     const [clubeSelecionado, setClubeSelecionado] = useState<IClube | null>(null)
     const [campeonato, setCampeonato] = useState<ICampeonato>({} as ICampeonato);
-    const [modal, setModal] = useState<boolean>(false);
-    const [modalPlayer, setModalPlayer] = useState<boolean>(false);
-    const [modalUpdatePlayer, setModalUpdatePlayer] = useState<boolean>(false);
-    const [modalUpdateClub, setModalUpdateCLub] = useState<boolean>(false);
-    const [clubeId, setClubeId] = useState<number>();
     const [jogadores, setJogadores] = useState<IJogador[]>([])
     const { id } = useParams();
     const auth = useAuth();
-    const [posicoes, setPosicoes] = useState<IPosicao[]>([])
+    const [posicoes, setPosicoes] = useState<IPosicao[]>([]);
+    const [treinador, setTreinador] = useState<ITreinador | null>(null)
 
     useEffect(() => {
         setLoading(true);
@@ -73,7 +78,14 @@ function GerenciarClubes() {
 
                     if (clubes.length > 0) {
                         setClubeSelecionado(clubes[0])
-                        const playerResponse = await obterJogadoresDoClubePorId(clubes[0].id)
+                        const treinadorRes = await Api.get(`/clubes/${clubes[0].id}/treinador`)
+                        if (treinadorRes.status === 200) {
+                            if (treinadorRes.data.length > 0) {
+                                setTreinador(treinadorRes.data[0]);
+                            }
+                        }
+
+                        const playerResponse = await obterJogadoresDoClubePorId(clubes[0].id);
 
                         if (playerResponse instanceof Error) {
                             return;
@@ -200,40 +212,34 @@ function GerenciarClubes() {
                 fotoUrl: data.fotoUrl
             }
             console.log(dados)
-            await criarJogador(dados)
+            const response = await criarJogador(dados)
 
-            // if (typeof response === 'number') {
-            //     const novoJogador = {
-            //         ...dados,
-            //         id: response
-            //     }
+            if (typeof response === 'number') {
+                const novoJogador = {
+                    ...dados,
+                    id: response
+                }
 
-            //     setJogadores([...jogadores, novoJogador])
-            // }
+                setJogadores([...jogadores, novoJogador])
+            }
         } catch (error) {
             console.log(error)
             toast.error("Erro ao adicionar jogador")
         }
     }
 
-    function openModal(id: number) {
-        setClubeId(id)
-        setModalPlayer(true)
-    }
-
-    function openUpdatePlayerModal(jogador: IJogador) {
-        setSelectedPlayer(jogador)
-        setModalUpdatePlayer(true)
-    }
-
-    function openUpdateClubModal(clube: IClube) {
-        setClubeSelecionado(clube)
-        setModalUpdateCLub(true)
-    }
-
     async function getClubPlayers(club: IClube) {
         setClubeSelecionado(club)
         setLoading(true)
+
+        const treinadorRes = await Api.get(`/clubes/${club.id}/treinador`)
+        if (treinadorRes.status === 200) {
+            if (treinadorRes.data.length > 0) {
+                setTreinador(treinadorRes.data[0]);
+            }else{
+                setTreinador(null);
+            }
+        }
 
         try {
             const response = await obterJogadoresDoClubePorId(club.id)
@@ -286,18 +292,68 @@ function GerenciarClubes() {
         }
     }
 
+    async function handleAddCoach(data: Omit<ITreinador, 'id'>) {
+        try {
+            const dados = {
+                nome: data.nome,
+                dataNascimento: formatToDate(data.dataNascimento),
+                nacionalidade: data.nacionalidade,
+                clubeId: data.clubeId,
+                fotoUrl: data.fotoUrl
+            }
+            console.log(dados)
+            const response = await Api.post("/treinadores", dados)
+
+            if (typeof response === 'number') {
+                const novoTreinador: ITreinador = {
+                    ...dados,
+                    id: response
+                }
+
+                setTreinador(novoTreinador)
+                toast.success("Treinador adicionado com sucesso!")
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error("Erro ao adicionar treinador")
+        }
+    }
+
     return (
         <>
             {loading && <Loading />}
-            {/* {modalUpdateClub && <UpdateClub handleUpdateClube={handleUpdateClub} club={clubeSelecionado} fecharModal={() => setModalUpdateCLub(false)} />} */}
             <main className={styles.gerenciarClubeContainer}>
-                <section>
-                    <div className={styles.addClubContainer}>
+                <section className='m-auto w-full max-w-screen-xl flex flex-col gap-4'>
+                    <div className='flex justify-between'>
+                        <h1 className='text-2xl'>Gerenciar Clubes</h1>
+                        {arrClubs.length < campeonato.quantidadeTimes && (
+                            <AddClub handleAddClube={handleAddClub} />
+                        )}
+                    </div>
+                    <Carousel opts={{ align: "start" }} className="w-full max-w-[200px] sm:max-w-[280px] md:max-w-[400px] lg:max-w-[700px] xl:max-w-[900px] 2xl:max-w-[1100px] mx-auto">
+                        <CarouselContent>
+                            {arrClubs.map((clube, index) => (
+                                <CarouselItem key={index} className="sm:basis-1/1 md:basis-1/2 lg:basis-1/4 xl:basis-1/6">
+                                    <div className="p-1">
+                                        <Card onClick={() => getClubPlayers(clube)} className='transition duration-200 ease-out hover:bg-slate-500 hover:text-slate-50'>
+                                            <CardContent className="cursor-pointer flex items-center justify-center p-4">
+                                                <span className="flex gap-2 items-center font-semibold">
+                                                    <img className="sm:block md:hidden 2xl:block max-w-8 max-h-8" src="https://imagepng.org/wp-content/uploads/2018/02/escudo-flamengo-1.png" alt={clube.nome} />
+                                                    {clube.nome}
+                                                </span>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                        <CarouselPrevious />
+                        <CarouselNext />
+                    </Carousel>
+
+                    {/* <div className={styles.addClubContainer}>
                         <div className={styles.clubsBox}>
                             <h2>Clubes</h2>
-                            {arrClubs.length < campeonato.quantidadeTimes && (
-                                <AddClub handleAddClube={handleAddClub} />
-                            )}
                             {arrClubs.map((club) => (
                                 <div key={club.id} className={`${styles.club} ${clubeSelecionado?.nome === club.nome ? styles.clubeSelecionado : ''}`}>
                                     <div className={styles.clubInfo}>
@@ -353,7 +409,176 @@ function GerenciarClubes() {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div> */}
+
+                    <Card className='flex justify-between gap-4 p-4 border rounded-lg'>
+                        <div>
+                            <div className='flex flex-col gap-1'>
+                                <div className='flex gap-4'>
+                                    <img className='w-[150px]' src="https://imagepng.org/wp-content/uploads/2018/02/escudo-flamengo-1.png" alt="" />
+                                    <div className='flex flex-col gap-2'>
+                                        <h2 className='text-3xl'>{clubeSelecionado?.nome}</h2>
+                                        <p>Jogadores: {jogadores.length}</p>
+                                        <p>Média idade: 25</p>
+                                        <p>Classificação: 1°</p>
+                                        <p>Mascote: {clubeSelecionado?.mascote}</p>
+                                    </div>
+                                    {treinador && (
+                                        <div className='border-l px-4 flex gap-2'>
+                                            <img
+                                                className='max-w-[70px] max-h-[70px] aspect-square rounded-md object-cover'
+                                                src={treinador.fotoUrl} alt=""
+                                            />
+                                            <div>
+                                                <p>Técnico: {treinador.nome}</p>
+                                                <p>{treinador.nacionalidade}</p>
+                                                <p>Idade: {calcularIdade(treinador.dataNascimento)}</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                        <div className='flex items-center'>
+                            <div className='flex flex-col gap-2'>
+                                {clubeSelecionado && (
+                                    <>
+                                        <DeletarItemModal itemExcluido={clubeSelecionado.nome} deletarItem={() => removeClub(clubeSelecionado)} />
+                                        <UpdateClub handleUpdateClube={handleUpdateClub} clube={clubeSelecionado} />
+                                        {treinador ? (
+                                            <Button variant="secondary" className='flex justify-between gap-2'>Editar Treinador <Pencil /></Button>
+                                        ) : (
+                                            <AddCoach clubeId={clubeSelecionado.id} handleAddCoach={handleAddCoach} />
+                                        )}
+                                        <Button variant="secondary" className='flex justify-between gap-2'>Estatísticas <ClipboardMinus /></Button>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Tabs defaultValue="todos">
+                        <div className="flex items-center">
+                            <TabsList>
+                                <TabsTrigger value="todos">Todos</TabsTrigger>
+                                <TabsTrigger value="active">Atacantes</TabsTrigger>
+                                <TabsTrigger value="draft">Meias</TabsTrigger>
+                                <TabsTrigger value="defesa">Defensivo</TabsTrigger>
+                            </TabsList>
+                            <div className="ml-auto flex items-center gap-2">
+                                <AddPlayer clubeId={clubeSelecionado?.id} posicoes={posicoes} handleAddPlayer={handleAddPlayer} />
+                            </div>
+                        </div>
+                        <TabsContent value="todos">
+                            <Card x-chunk="dashboard-06-chunk-0">
+                                <CardHeader>
+                                    <CardTitle>Jogadores</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="hidden w-[100px] sm:table-cell">
+                                                    <span className="sr-only">Image</span>
+                                                </TableHead>
+                                                <TableHead>Nome</TableHead>
+                                                <TableHead className="hidden md:table-cell">
+                                                    Posição
+                                                </TableHead>
+                                                <TableHead className="hidden md:table-cell">
+                                                    Idade
+                                                </TableHead>
+                                                <TableHead className="hidden md:table-cell">
+                                                    Número Camisa
+                                                </TableHead>
+                                                <TableHead className="hidden md:table-cell">
+                                                    Nacionalidade
+                                                </TableHead>
+                                                <TableHead>
+                                                    <span className="sr-only">Actions</span>
+                                                </TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {jogadores.map((jogador) => (
+                                                <TableRow key={jogador.id}>
+                                                    <TableCell className="hidden sm:table-cell">
+                                                        <img
+                                                            alt="player image"
+                                                            className="aspect-square rounded-md object-cover"
+                                                            height="64"
+                                                            src="https://p2.trrsf.com/image/fget/cf/1200/1600/middle/images.terra.com/2024/02/20/469743382-flamengoarrascaetaes-brasil.jpg"
+                                                            // src={jogador.fotoUrl}
+                                                            width="64"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell className="font-medium">
+                                                        {jogador.nome}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Badge variant="outline"> {posicoes.find(posicao => posicao.id === jogador.posicaoId)?.nome}</Badge>
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        {calcularIdade(jogador.dataNascimento)} anos
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        {jogador.numeroCamisa}
+                                                    </TableCell>
+                                                    <TableCell className="hidden md:table-cell">
+                                                        {jogador.nacionalidade}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    aria-haspopup="true"
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                >
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                    <span className="sr-only">Toggle menu</span>
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className='flex flex-col gap-2' align="end">
+                                                                <UpdatePlayer jogador={jogador} posicoes={posicoes} handleUpdatePlayer={updadePlayer} />
+                                                                <AlertDialog>
+                                                                    <AlertDialogTrigger asChild>
+                                                                        <Button variant="secondary">
+                                                                            <Label className="cursor-pointer">Excluir</Label>
+                                                                        </Button>
+                                                                    </AlertDialogTrigger>
+                                                                    <AlertDialogContent>
+                                                                        <AlertDialogHeader>
+                                                                            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                                                                            <AlertDialogDescription>
+                                                                                Essa ação não pode ser desfeita.
+                                                                                Isso excluirá permanentemente: {jogador.nome}.
+                                                                            </AlertDialogDescription>
+                                                                        </AlertDialogHeader>
+                                                                        <AlertDialogFooter>
+                                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                            <AlertDialogAction onClick={() => deletePlayer(jogador)}>Continuar</AlertDialogAction>
+                                                                        </AlertDialogFooter>
+                                                                    </AlertDialogContent>
+                                                                </AlertDialog>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </CardContent>
+                                <CardFooter>
+                                    <div className="text-xs text-muted-foreground">
+                                        Mostrando <strong>1-10</strong> de <strong>{jogadores.length}</strong>{" "}
+                                        jogadores
+                                    </div>
+                                </CardFooter>
+                            </Card>
+                        </TabsContent>
+                    </Tabs>
+
                 </section>
             </main>
         </>

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IClube } from "../../../../interfaces/Clube";
 import { Button } from "../../../ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../../ui/dialog";
-import { faEdit, faX } from "@fortawesome/free-solid-svg-icons";
+import { faX } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../../../contexts/AuthProvider/useAuth";
 import FileInformation from "../../../../interfaces/FileInformation";
 import { useEffect, useState } from "react";
@@ -25,6 +25,7 @@ import { deleteObject, ref } from "firebase/storage";
 import { storage } from "../../../../firebase";
 import { toast } from "react-toastify";
 import { Progress } from "../../../ui/progress";
+import { Pencil } from "lucide-react";
 
 // interface UpdateClubProps {
 //     fecharModal: () => void;
@@ -97,7 +98,13 @@ function UpdateClub({ handleUpdateClube, clube }: UpdateClubProps) {
     });
 
     useEffect(() => {
-        form.reset();
+        form.reset({
+            nome: clube.nome,
+            cor_principal: clube.cor_principal,
+            cor_secundaria: clube.cor_secundaria,
+            mascote: clube.mascote,
+            fotoUrl: clube.fotoUrl
+        });
         setPromiseFoto(null);
         setProgress(0);
     }, [isDialogOpen]);
@@ -142,7 +149,9 @@ function UpdateClub({ handleUpdateClube, clube }: UpdateClubProps) {
     return (
         <Dialog open={isDialogOpen} onOpenChange={(open) => setIsDialogOpen(open)}>
             <DialogTrigger asChild>
-                <FontAwesomeIcon icon={faEdit} />
+                <Button variant="secondary" className="cursor-pointer">
+                    <Label className="cursor-pointer w-full flex justify-between items-center">Editar <Pencil /></Label>
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
@@ -172,7 +181,7 @@ function UpdateClub({ handleUpdateClube, clube }: UpdateClubProps) {
                                                 {promiseFoto && <FontAwesomeIcon onClick={() => deleteFile(promiseFoto)} icon={faX} className="text-red-500 cursor-pointer" />}
                                             </div>
                                         ) : (
-                                            progress > 0 && <Progress value={progress}/>
+                                            progress > 0 && <Progress value={progress} />
                                         )}
                                     </div>
                                 </FormControl>

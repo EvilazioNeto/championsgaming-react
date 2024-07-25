@@ -27,11 +27,8 @@ export function AuthProvider({ children }: IAuthProvider) {
 
 
     async function logout() {
-        const sair = confirm("Desejar sair da sua conta?")
-        if (sair) {
-            setUser(null)
-            setUserLocalStorage(null)
-        }
+            setUser(null);
+            setUserLocalStorage(null);
     }
 
     return (
