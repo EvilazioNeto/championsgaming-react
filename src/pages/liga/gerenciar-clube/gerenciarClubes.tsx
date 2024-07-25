@@ -22,7 +22,7 @@ import { Button } from '../../../components/ui/button';
 import { DeletarItemModal } from '../../../components/Modal/Deletar';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../../../components/ui/carousel';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../../components/ui/card';
-import { ClipboardMinus, MoreHorizontal, Pencil } from 'lucide-react';
+import { ClipboardMinus, MoreHorizontal } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table';
 import { Badge } from '../../../components/ui/badge';
@@ -34,6 +34,7 @@ import AddCoach from '../../../components/Modal/Coach/AddCoach';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../../../components/ui/pagination';
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '../../../components/ui/breadcrumb';
 import { Link } from 'react-router-dom';
+import UpdateCoach from '../../../components/Modal/Coach/UpdateCoach';
 
 function GerenciarClubes() {
     const [loading, setLoading] = useState<boolean>(false)
@@ -325,39 +326,47 @@ function GerenciarClubes() {
         }
     }
 
+    async function handleUpdateCoach(treinador: ITreinador) {
+        console.log(treinador)
+    }
+
     return (
         <>
             {loading && <Loading />}
             <main className={styles.gerenciarClubeContainer}>
-                <Breadcrumb className='pb-4'>
-                    <BreadcrumbList>
-                        <BreadcrumbItem>
-                            <Link to="/">Home</Link>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger className="flex items-center gap-1">
-                                    <BreadcrumbEllipsis className="h-4 w-4" />
-                                    <span className="sr-only">Toggle menu</span>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="start">
-                                    <DropdownMenuItem><Link to="/minhas-ligas">Minhas Ligas</Link></DropdownMenuItem>
-                                    
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <Link to={`/minhas-ligas/${id}`}>Campeonato</Link>
-                        </BreadcrumbItem>
-                        <BreadcrumbSeparator />
-                        <BreadcrumbItem>
-                            <BreadcrumbPage>Clubes</BreadcrumbPage>
-                        </BreadcrumbItem>
-                    </BreadcrumbList>
-                </Breadcrumb>
                 <section className='m-auto w-full max-w-screen-xl flex flex-col gap-4'>
+                    <Breadcrumb className='pb-4'>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <Link to="/">Home</Link>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger className="flex items-center gap-1">
+                                        <BreadcrumbEllipsis className="h-4 w-4" />
+                                        <span className="sr-only">Toggle menu</span>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="start">
+                                        <DropdownMenuItem>
+                                            <Link to="/minhas-ligas">Minhas Ligas</Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem>
+                                            <Link to="/criar-liga">Criar Liga</Link>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <Link to={`/minhas-ligas/${id}`}>Campeonato</Link>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Clubes</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
                     <div className='flex justify-between'>
                         <h1 className='text-2xl'>Gerenciar Clubes</h1>
                         {arrClubs.length < campeonato.quantidadeTimes && (
@@ -372,7 +381,7 @@ function GerenciarClubes() {
                                         <Card onClick={() => getClubPlayers(clube)} className={`${btnSelected === clube.nome ? 'bg-slate-500 text-slate-50' : ''} transition duration-200 ease-out hover:bg-slate-500 hover:text-slate-50`} >
                                             <CardContent className="cursor-pointer flex items-center justify-center p-4">
                                                 <span className="flex gap-2 items-center font-semibold">
-                                                    <img className="sm:block md:hidden 2xl:block max-w-8 max-h-8" src="https://imagepng.org/wp-content/uploads/2018/02/escudo-flamengo-1.png" alt={clube.nome} />
+                                                    <img className="sm:block md:hidden 2xl:block max-w-8 max-h-8" src="https://freepngimg.com/save/17624-shield-png/588x598" alt={clube.nome} />
                                                     {clube.nome}
                                                 </span>
                                             </CardContent>
@@ -385,32 +394,32 @@ function GerenciarClubes() {
                         <CarouselNext />
                     </Carousel>
 
-                    <Card className='flex justify-between gap-4 p-4 border rounded-lg'>
-                        <div>
-                            <div className='flex flex-col gap-1'>
-                                <div className='flex gap-4'>
-                                    <img className='w-[150px]' src="https://imagepng.org/wp-content/uploads/2018/02/escudo-flamengo-1.png" alt="" />
-                                    <div className='flex flex-col gap-2'>
-                                        <h2 className='text-3xl'>{clubeSelecionado?.nome}</h2>
-                                        <p>Jogadores: {jogadores.length}</p>
-                                        <p>Média idade: 25</p>
-                                        <p>Classificação: 1°</p>
-                                        <p>Mascote: {clubeSelecionado?.mascote}</p>
-                                    </div>
-                                    {treinador && (
-                                        <div className='border-l px-4 flex gap-2'>
-                                            <img
-                                                className='max-w-[80px] max-h-[80px] aspect-square rounded-md object-cover'
-                                                src={treinador.fotoUrl} alt=""
-                                            />
-                                            <div className='flex flex-col gap-1'>
-                                                <p>Técnico: {treinador.nome}</p>
-                                                <p>{treinador.nacionalidade}</p>
-                                                <p>Idade: {calcularIdade(treinador.dataNascimento)}</p>
-                                            </div>
-                                        </div>
-                                    )}
+                    <Card className='flex justify-between max-[1170px]:items-start gap-4 p-4 border rounded-lg'>
+                        <div className='flex gap-4 max-[1170px]:flex-col'>
+                            <div className='flex gap-4 max-[768px]:flex-col '>
+                                <img className='w-[150px]' src="https://freepngimg.com/save/17624-shield-png/588x598" alt="" />
+                                <div className='flex flex-col gap-2'>
+                                    <h2 className='text-3xl'>{clubeSelecionado?.nome}</h2>
+                                    <p>Jogadores: {jogadores.length}</p>
+                                    <p>Média de idade: {jogadores.length > 0 ? (jogadores.reduce((acc, jogador) => acc + calcularIdade(jogador.dataNascimento), 0) / jogadores.length).toFixed(2) : 0}</p>
+                                    <p>Classificação: 1°</p>
+                                    <p>Mascote: {clubeSelecionado?.mascote}</p>
                                 </div>
+                            </div>
+                            <div className='flex gap-4'>
+                                {treinador && (
+                                    <div className='border-l px-4 max-[1170px]:border-none max-[1170px]:px-0 flex gap-2'>
+                                        <img
+                                            className='max-w-[80px] max-h-[80px] aspect-square rounded-md object-cover'
+                                            src={treinador.fotoUrl} alt=""
+                                        />
+                                        <div className='flex flex-col gap-1'>
+                                            <p>Técnico: {treinador.nome}</p>
+                                            <p>{treinador.nacionalidade}</p>
+                                            <p>Idade: {calcularIdade(treinador.dataNascimento)}</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className='flex items-center'>
@@ -420,7 +429,7 @@ function GerenciarClubes() {
                                         <DeletarItemModal itemExcluido={clubeSelecionado.nome} deletarItem={() => removeClub(clubeSelecionado)} />
                                         <UpdateClub handleUpdateClube={handleUpdateClub} clube={clubeSelecionado} />
                                         {treinador ? (
-                                            <Button variant="secondary" className='flex justify-between gap-2'>Editar Treinador <Pencil /></Button>
+                                            <UpdateCoach treinador={treinador} handleUpdateCoach={handleUpdateCoach} />
                                         ) : (
                                             <AddCoach clubeId={clubeSelecionado.id} handleAddCoach={handleAddCoach} />
                                         )}
@@ -435,9 +444,9 @@ function GerenciarClubes() {
                         <div className="flex items-center">
                             <TabsList>
                                 <TabsTrigger value="todos">Todos</TabsTrigger>
-                                <TabsTrigger value="active">Atacantes</TabsTrigger>
-                                <TabsTrigger value="draft">Meias</TabsTrigger>
-                                <TabsTrigger value="defesa">Defensivo</TabsTrigger>
+                                <TabsTrigger value="active">S. Ofensivo</TabsTrigger>
+                                <TabsTrigger value="draft">S. Meio Campo</TabsTrigger>
+                                <TabsTrigger value="defesa">S. Defensivo</TabsTrigger>
                             </TabsList>
                             <div className="ml-auto flex items-center gap-2">
                                 <AddPlayer clubeId={clubeSelecionado?.id} posicoes={posicoes} handleAddPlayer={handleAddPlayer} />

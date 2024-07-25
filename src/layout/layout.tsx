@@ -113,10 +113,10 @@ function Layout({ children }: { children: ReactNode }) {
                             </Link>
                         </nav>
                     </div>
-                    <div className="mt-auto p-4">
+                    <div className="mt-auto p-4 fixed bottom-0 w-[219px] lg:w-[279px]">
                         <Card x-chunk="dashboard-02-chunk-0">
                             <CardHeader className="p-2 pt-0 md:p-4">
-                                <CardTitle>Upgrade para Pro</CardTitle>
+                                <CardTitle>Seja Pro</CardTitle>
                                 <CardDescription>
                                     Desbloqueie todos os recursos, incluindo a criação de ligas para vários esportes e acesso às copas!
                                 </CardDescription>
@@ -196,7 +196,7 @@ function Layout({ children }: { children: ReactNode }) {
                             <div className="mt-auto">
                                 <Card>
                                     <CardHeader className="p-2 pt-0 md:p-4">
-                                        <CardTitle>Upgrade para Pro</CardTitle>
+                                        <CardTitle>Seja Pro</CardTitle>
                                         <CardDescription>
                                             Desbloqueie todos os recursos, incluindo a criação de ligas para vários esportes e acesso às copas!
                                         </CardDescription>
