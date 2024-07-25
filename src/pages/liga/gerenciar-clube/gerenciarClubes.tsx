@@ -26,12 +26,14 @@ import { ClipboardMinus, MoreHorizontal, Pencil } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table';
 import { Badge } from '../../../components/ui/badge';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../../../components/ui/dropdown-menu';
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../../components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../../components/ui/alert-dialog';
 import { Label } from '../../../components/ui/label';
 import ITreinador from '../../../interfaces/Treinador';
 import AddCoach from '../../../components/Modal/Coach/AddCoach';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../../../components/ui/pagination';
+import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '../../../components/ui/breadcrumb';
+import { Link } from 'react-router-dom';
 
 function GerenciarClubes() {
     const [loading, setLoading] = useState<boolean>(false)
@@ -42,7 +44,8 @@ function GerenciarClubes() {
     const { id } = useParams();
     const auth = useAuth();
     const [posicoes, setPosicoes] = useState<IPosicao[]>([]);
-    const [treinador, setTreinador] = useState<ITreinador | null>(null)
+    const [treinador, setTreinador] = useState<ITreinador | null>(null);
+    const [btnSelected, setBtnSelected] = useState<string>('');
 
     useEffect(() => {
         setLoading(true);
@@ -77,7 +80,8 @@ function GerenciarClubes() {
                     setArrClubs(clubes);
 
                     if (clubes.length > 0) {
-                        setClubeSelecionado(clubes[0])
+                        setClubeSelecionado(clubes[0]);
+                        setBtnSelected(clubes[0].nome)
                         const treinadorRes = await Api.get(`/clubes/${clubes[0].id}/treinador`)
                         if (treinadorRes.status === 200) {
                             if (treinadorRes.data.length > 0) {
@@ -229,14 +233,15 @@ function GerenciarClubes() {
     }
 
     async function getClubPlayers(club: IClube) {
-        setClubeSelecionado(club)
-        setLoading(true)
+        setClubeSelecionado(club);
+        setBtnSelected(club.nome);
+        setLoading(true);
 
         const treinadorRes = await Api.get(`/clubes/${club.id}/treinador`)
         if (treinadorRes.status === 200) {
             if (treinadorRes.data.length > 0) {
                 setTreinador(treinadorRes.data[0]);
-            }else{
+            } else {
                 setTreinador(null);
             }
         }
@@ -301,17 +306,18 @@ function GerenciarClubes() {
                 clubeId: data.clubeId,
                 fotoUrl: data.fotoUrl
             }
-            console.log(dados)
-            const response = await Api.post("/treinadores", dados)
+            const response = await Api.post("/treinadores", dados);
+            console.log(response)
 
-            if (typeof response === 'number') {
+            if (typeof response.data === 'number') {
                 const novoTreinador: ITreinador = {
                     ...dados,
-                    id: response
+                    id: response.data
                 }
+                console.log(novoTreinador)
 
                 setTreinador(novoTreinador)
-                toast.success("Treinador adicionado com sucesso!")
+                toast.success("Treinador adicionado com sucesso!");
             }
         } catch (error) {
             console.log(error)
@@ -323,6 +329,34 @@ function GerenciarClubes() {
         <>
             {loading && <Loading />}
             <main className={styles.gerenciarClubeContainer}>
+                <Breadcrumb className='pb-4'>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <Link to="/">Home</Link>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="flex items-center gap-1">
+                                    <BreadcrumbEllipsis className="h-4 w-4" />
+                                    <span className="sr-only">Toggle menu</span>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start">
+                                    <DropdownMenuItem><Link to="/minhas-ligas">Minhas Ligas</Link></DropdownMenuItem>
+                                    
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <Link to={`/minhas-ligas/${id}`}>Campeonato</Link>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Clubes</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
                 <section className='m-auto w-full max-w-screen-xl flex flex-col gap-4'>
                     <div className='flex justify-between'>
                         <h1 className='text-2xl'>Gerenciar Clubes</h1>
@@ -335,7 +369,7 @@ function GerenciarClubes() {
                             {arrClubs.map((clube, index) => (
                                 <CarouselItem key={index} className="sm:basis-1/1 md:basis-1/2 lg:basis-1/4 xl:basis-1/6">
                                     <div className="p-1">
-                                        <Card onClick={() => getClubPlayers(clube)} className='transition duration-200 ease-out hover:bg-slate-500 hover:text-slate-50'>
+                                        <Card onClick={() => getClubPlayers(clube)} className={`${btnSelected === clube.nome ? 'bg-slate-500 text-slate-50' : ''} transition duration-200 ease-out hover:bg-slate-500 hover:text-slate-50`} >
                                             <CardContent className="cursor-pointer flex items-center justify-center p-4">
                                                 <span className="flex gap-2 items-center font-semibold">
                                                     <img className="sm:block md:hidden 2xl:block max-w-8 max-h-8" src="https://imagepng.org/wp-content/uploads/2018/02/escudo-flamengo-1.png" alt={clube.nome} />
@@ -350,66 +384,6 @@ function GerenciarClubes() {
                         <CarouselPrevious />
                         <CarouselNext />
                     </Carousel>
-
-                    {/* <div className={styles.addClubContainer}>
-                        <div className={styles.clubsBox}>
-                            <h2>Clubes</h2>
-                            {arrClubs.map((club) => (
-                                <div key={club.id} className={`${styles.club} ${clubeSelecionado?.nome === club.nome ? styles.clubeSelecionado : ''}`}>
-                                    <div className={styles.clubInfo}>
-                                        <div>
-                                            <div className={styles.escudo}>
-                                                <div style={{ backgroundColor: `${club.cor_principal}`, width: '50px', height: '50px' }}></div>
-                                                <div style={{ backgroundColor: `${club.cor_secundaria}`, width: '50px', height: '20px', position: 'absolute', top: '15px' }}></div>
-                                            </div>
-                                            <h4>{club.nome.toUpperCase()} </h4>
-                                        </div>
-                                        <p>Mascote: {club.mascote}</p>
-                                    </div>
-                                    <div className={styles.clubSettings}>
-                                        <UpdateClub clube={club} handleUpdateClube={handleUpdateClub} />
-                                        <DeletarItemModal deletarItem={() => removeClub(club)} itemExcluido={club.nome} />
-                                        <AddPlayer posicoes={posicoes} handleAddPlayer={handleAddPlayer} clubeId={club.id} />
-
-                                        <FontAwesomeIcon className={styles.editIcon} icon={faUser} onClick={() => getClubPlayers(club)} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div className={styles.jogadoresContainer}>
-                            <h2>Jogadores</h2>
-                            <table border={1}>
-                                <thead>
-                                    <tr>
-                                        <th></th>
-                                        <th>Nome</th>
-                                        <th>Nacionalidade</th>
-                                        <th>Número da Camisa</th>
-                                        <th>Posição</th>
-                                        <th>Idade</th>
-                                        <th>Excluir</th>
-                                        <th>Editar</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {jogadores.map((jogador, index) => (
-                                        <tr key={jogador.id}>
-                                            <td>{index + 1}º </td>
-                                            <td>{jogador.nome}</td>
-                                            <td>{jogador.nacionalidade}</td>
-                                            <td>{jogador.numeroCamisa}</td>
-                                            <td>
-                                                {posicoes.find(posicao => posicao.id === jogador.posicaoId)?.nome}
-                                            </td>
-                                            <td>{calcularIdade(jogador.dataNascimento)}</td>
-                                            <td><DeletarItemModal deletarItem={() => deletePlayer(jogador)} itemExcluido={jogador.nome} /></td>
-                                            <td><UpdatePlayer handleUpdatePlayer={updadePlayer} posicoes={posicoes} jogador={jogador} /></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div> */}
 
                     <Card className='flex justify-between gap-4 p-4 border rounded-lg'>
                         <div>
@@ -426,10 +400,10 @@ function GerenciarClubes() {
                                     {treinador && (
                                         <div className='border-l px-4 flex gap-2'>
                                             <img
-                                                className='max-w-[70px] max-h-[70px] aspect-square rounded-md object-cover'
+                                                className='max-w-[80px] max-h-[80px] aspect-square rounded-md object-cover'
                                                 src={treinador.fotoUrl} alt=""
                                             />
-                                            <div>
+                                            <div className='flex flex-col gap-1'>
                                                 <p>Técnico: {treinador.nome}</p>
                                                 <p>{treinador.nacionalidade}</p>
                                                 <p>Idade: {calcularIdade(treinador.dataNascimento)}</p>
@@ -569,16 +543,32 @@ function GerenciarClubes() {
                                         </TableBody>
                                     </Table>
                                 </CardContent>
-                                <CardFooter>
+                                <CardFooter className='flex justify-between'>
                                     <div className="text-xs text-muted-foreground">
                                         Mostrando <strong>1-10</strong> de <strong>{jogadores.length}</strong>{" "}
                                         jogadores
                                     </div>
+                                    <Pagination className='w-auto m-0'>
+                                        <PaginationContent>
+                                            <PaginationItem>
+                                                <PaginationPrevious href="#" />
+                                            </PaginationItem>
+                                            <PaginationItem>
+                                                <PaginationLink href="#">1</PaginationLink>
+                                                <PaginationLink href="#">2</PaginationLink>
+                                            </PaginationItem>
+                                            <PaginationItem>
+                                                <PaginationEllipsis />
+                                            </PaginationItem>
+                                            <PaginationItem>
+                                                <PaginationNext href="#" />
+                                            </PaginationItem>
+                                        </PaginationContent>
+                                    </Pagination>
                                 </CardFooter>
                             </Card>
                         </TabsContent>
                     </Tabs>
-
                 </section>
             </main>
         </>

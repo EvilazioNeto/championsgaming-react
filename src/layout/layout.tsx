@@ -118,9 +118,7 @@ function Layout({ children }: { children: ReactNode }) {
                             <CardHeader className="p-2 pt-0 md:p-4">
                                 <CardTitle>Upgrade para Pro</CardTitle>
                                 <CardDescription>
-                                    Desbloqueie todos os recursos, incluindo
-                                    a capacidade de criar ligas para diferentes esportes.
-                                    Além de desbloquear as copas!
+                                    Desbloqueie todos os recursos, incluindo a criação de ligas para vários esportes e acesso às copas!
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
@@ -200,10 +198,7 @@ function Layout({ children }: { children: ReactNode }) {
                                     <CardHeader className="p-2 pt-0 md:p-4">
                                         <CardTitle>Upgrade para Pro</CardTitle>
                                         <CardDescription>
-                                            Desbloqueie todos os recursos, incluindo
-                                            a capacidade de criar ligas para diferentes esportes,
-                                            como basquete, vôlei e muito mais.
-                                            Obtenha acesso ilimitado à nossa equipe de suporte.
+                                            Desbloqueie todos os recursos, incluindo a criação de ligas para vários esportes e acesso às copas!
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="p-2 pt-0 md:p-4 md:pt-0">

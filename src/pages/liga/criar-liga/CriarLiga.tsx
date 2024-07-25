@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import { Input } from '../../../components/ui/input';
 import { DatePickerWithRange } from '../../../components/DatePicker/DatePickerWithRange';
 import { Button } from '../../../components/ui/button';
+import logo from "/logo-sem-fundo.png"
 
 interface DateProps {
     dataInicio: Date,
@@ -63,7 +64,7 @@ function CriarLiga() {
                 <section className={styles.formSection}>
                     <form className={styles.formCriarLiga} onSubmit={handleSubmit(onSubmit)}>
                         <div className={styles.formApresentacao}>
-                            <img src="logo.png" alt="" />
+                            <img src={logo} alt="" />
                             <h2>Crie sua Liga de Futebol!</h2>
                         </div>
                         <div>
@@ -75,23 +76,6 @@ function CriarLiga() {
                             <div className={styles.msgError}>{errors.nome?.message}</div>
                         </div>
                         <div className={styles.dataLiga}>
-                            {/* <div>
-                                <p>Data início:</p>
-                                <Input
-                                    type="date"
-                                    {...register('dataInicio')}
-                                />
-                                <div className={styles.msgError}>{errors.dataInicio?.message}</div>
-                            </div>
-                            <div>
-                                <p>Data Fim:</p>
-                                <Input
-                                    type="date"
-                                    {...register('dataFim')}
-                                />
-                                <div className={styles.msgError}>{errors.dataFim?.message}</div>
-                            </div> */}
-
                             <DatePickerWithRange onDateChange={onDateChange} />
                         </div>
                         <div className={styles.qtdTimesContainer}>
