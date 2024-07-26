@@ -36,7 +36,8 @@ function CriarLiga() {
             nome: data.nome,
             status: 'ativo',
             numeroRodadas: rodadas,
-            quantidadeTimes: btnSelected
+            quantidadeTimes: btnSelected,
+            fotoUrl: "https://image-service.onefootball.com/transform?w=256&dpr=2&image=https://images.onefootball.com/icons/leagueColoredCompetition/128/9.png"
         }
     
         try {

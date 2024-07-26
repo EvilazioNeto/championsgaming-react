@@ -17,9 +17,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "../../ui/form
 import { Input } from "../../ui/input";
 import { Label } from "../../ui/label";
 import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Progress } from "../../ui/progress";
-import { faX } from "@fortawesome/free-solid-svg-icons";
 
 interface AddPlayerProps {
     handleUpdateCoach: (data: ITreinador) => void;
@@ -57,8 +55,9 @@ function UpdateCoach({ handleUpdateCoach, treinador }: AddPlayerProps) {
     const onSubmit: SubmitHandler<Omit<ITreinador, 'id' | 'clubeId'>> = (data) => {
         if (treinador) {
             handleUpdateCoach({ ...data, id: treinador.id, clubeId: treinador.clubeId });
+            deleteFile(treinador.fotoUrl)
         }
-        setIsDialogOpen(false)
+        setIsDialogOpen(false);
         form.reset();
     };
 
@@ -75,23 +74,17 @@ function UpdateCoach({ handleUpdateCoach, treinador }: AddPlayerProps) {
     }
 
     function deleteFile(url: string) {
+        const fileRef = ref(storage, url)
+        deleteObject(fileRef).then(() => {
+            console.log("arquivo deletado com sucesso!");
+            setPromiseFoto(null)
+            form.setValue('fotoUrl', '');
+            setProgress(0);
 
-        const deleteFile = confirm("Deseja remover o arquivo?")
-        if (deleteFile) {
-
-            const fileRef = ref(storage, url)
-            deleteObject(fileRef).then(() => {
-                console.log("arquivo deletado com sucesso!");
-                toast.success("Arquivo deletado");
-                setPromiseFoto(null)
-                form.setValue('fotoUrl', '');
-                setProgress(0);
-
-            }).catch((error) => {
-                console.log(error + ": erro ao deletar");
-                toast.error("Erro ao deletar")
-            });
-        }
+        }).catch((error) => {
+            console.log(error + ": erro ao deletar");
+            toast.error("Erro ao deletar foto")
+        });
     }
 
     return (
@@ -122,13 +115,24 @@ function UpdateCoach({ handleUpdateCoach, treinador }: AddPlayerProps) {
                                             className="hidden"
                                         />
                                         <Label htmlFor="picture" className="block w-full text-sm text-center text-white bg-blue-500 transition transition-duration: 150ms hover:bg-blue-600 cursor-pointer rounded-lg p-2">
-                                            Anexe a foto
+                                            Substituir foto
                                         </Label>
                                         {treinador.fotoUrl ? (
-                                            <div className="flex justify-between items-center">
-                                                <Link className="text-blue-500 underline" target="_blank" to={`${treinador.fotoUrl}`}>
-                                                    Foto-{treinador.nome}
-                                                </Link>
+                                            <div className="flex flex-col">
+                                                <div>
+                                                    <Label>Foto Atual: </Label>
+                                                    <Link className="text-blue-500 underline" target="_blank" to={`${treinador.fotoUrl}`}>
+                                                        Foto-{treinador.nome}
+                                                    </Link>
+                                                </div>
+                                                {promiseFoto && (
+                                                    <div>
+                                                        <Label>Nova Foto: </Label>
+                                                        <Link className="text-blue-500 underline" target="_blank" to={promiseFoto.downloadURL}>
+                                                            {promiseFoto.name}
+                                                        </Link>
+                                                    </div>
+                                                )}
                                                 {/* {treinador.fotoUrl && <FontAwesomeIcon onClick={() => deleteFile(treinador.fotoUrl)} icon={faX} className="text-red-500 cursor-pointer" />} */}
                                             </div>
                                         ) : (
