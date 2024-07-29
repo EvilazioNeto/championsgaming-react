@@ -6,7 +6,6 @@ import {
     LogOut,
     Menu,
     Search,
-    Shield,
     ShieldHalf,
 } from "lucide-react"
 
@@ -79,14 +78,14 @@ function Layout({ children }: { children: ReactNode }) {
                                 <Home className="h-4 w-4" />
                                 Home
                             </Link>
-                            <Link
+                            {/* <Link
                                 to="/criar-liga"
                                 onClick={() => setBtnSelecionado('Criar liga')}
                                 className={`${btnSelecionado === "Criar liga" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
                                 <Shield className="h-4 w-4" />
                                 Criar liga
-                            </Link>
+                            </Link> */}
                             <Link
                                 to="/minhas-ligas"
                                 onClick={() => setBtnSelecionado('Minhas Ligas')}
@@ -160,14 +159,14 @@ function Layout({ children }: { children: ReactNode }) {
                                     <Home className="h-4 w-4" />
                                     Home
                                 </Link>
-                                <Link
+                                {/* <Link
                                     to="/criar-liga"
                                     onClick={() => setBtnSelecionado('Criar liga')}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >
                                     <Shield className="h-4 w-4" />
                                     Criar liga
-                                </Link>
+                                </Link> */}
                                 <Link
                                     to="/minhas-ligas"
                                     onClick={() => setBtnSelecionado('Minhas Ligas')}

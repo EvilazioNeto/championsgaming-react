@@ -1,8 +1,8 @@
 export interface ICampeonato {
     id: number;
     nome: string;
-    dataInicio: Date;
-    dataFim: Date;
+    dataInicio: any;
+    dataFim: any;
     usuarioId: number;
     status: string;
     numeroRodadas: number;

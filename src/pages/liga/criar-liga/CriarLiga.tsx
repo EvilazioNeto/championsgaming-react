@@ -20,8 +20,8 @@ interface DateProps {
 
 function CriarLiga() {
     const { id } = useAuth();
-    const [dataInicio, setDataInicio] = useState<string>()
-    const [dataFim, setDataFim] = useState<string>()
+    const [dataInicio, setDataInicio] = useState<string>();
+    const [dataFim, setDataFim] = useState<string>();
     const [btnSelected, setBtnSelected] = useState<number>(4);
     const { register, handleSubmit, formState: { errors }, reset } = useForm<Omit<ICampeonato, 'id' | 'usuarioId' | 'status' | 'numeroRodadas' | 'quantidadeTimes' | 'dataInicio' | 'dataFim'>>({
         resolver: yupResolver(campeonatoValidationSchema)
