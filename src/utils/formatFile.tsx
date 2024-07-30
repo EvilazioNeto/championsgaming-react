@@ -3,8 +3,9 @@ import { storage } from "../firebase";
 import FileInformation from "../interfaces/FileInformation";
 
 export async function formatFile(file: any, userId: number | undefined, onProgress: (progress: number) => void): Promise<FileInformation> {
+    const uniqueFileName = `${Date.now()}-${file.name}`;
 
-    const storageRef = ref(storage, `users/${userId}/files/${file.name}`);
+    const storageRef = ref(storage, `users/${userId}/files/${uniqueFileName}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
     return new Promise((resolve, reject) => {

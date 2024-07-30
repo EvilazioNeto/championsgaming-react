@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../../contexts/AuthProvider/useAuth';
 import { ICampeonato } from '../../../interfaces/Campeonato';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFutbol, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faFutbol } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbSeparator } from '../../../components/ui/breadcrumb';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '../../../components/ui/dropdown-menu';
@@ -14,10 +14,11 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../../../c
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../../components/ui/table';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '../../../components/ui/pagination';
 import { Button } from '../../../components/ui/button';
-import { MoreHorizontal, Shield, Table2 } from 'lucide-react';
+import { MoreHorizontal, Shield, Table2, TrendingUp } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../../../components/ui/alert-dialog';
 import { Label } from '../../../components/ui/label';
 import AddLeague from '../../../components/Modal/League/AddLeague';
+import UpdateLeague from '../../../components/Modal/League/UpdateLeague';
 
 export default function MinhasLigas() {
     const auth = useAuth();
@@ -40,22 +41,18 @@ export default function MinhasLigas() {
     }, [auth.id]);
 
     async function deletarPorId(campeonato: ICampeonato) {
-        const confirmar = confirm(`Deseja deletar ${campeonato.nome}?`)
+        try {
+            const response = await Api.delete(`/campeonatos/${campeonato.id}`)
+            if (response.status === 200) {
+                toast.success('Liga deletada com sucesso')
 
-        if (confirmar) {
-            try {
-                const response = await Api.delete(`/campeonatos/${campeonato.id}`)
-                if (response.status === 200) {
-                    toast.success('Liga deletada com sucesso')
-
-                    const index = campeonatos.indexOf(campeonato);
-                    campeonatos.splice(index, 1)
-                    setCampeonatos([...campeonatos]);
-                }
-            } catch (error) {
-                console.log(error)
-                toast.error('Erro ao deletar o campeonato')
+                const index = campeonatos.indexOf(campeonato);
+                campeonatos.splice(index, 1)
+                setCampeonatos([...campeonatos]);
             }
+        } catch (error) {
+            console.log(error)
+            toast.error('Erro ao deletar o campeonato')
         }
     }
 
@@ -75,6 +72,22 @@ export default function MinhasLigas() {
         } catch (error) {
             console.log(error)
             toast.error('Erro ao criar liga');
+        }
+    }
+
+    async function handleUpdateLeague(data: ICampeonato) {
+        console.log(data)
+        const response = await Api.put(`/campeonatos/${data.id}`, data);
+
+        if (response.status === 200) {
+            toast.success("Liga Atualizada")
+            const ligaAnterior = campeonatos.find((campeonato) => campeonato.id === data.id)
+            if (ligaAnterior) {
+                const i = campeonatos.indexOf(ligaAnterior);
+                campeonatos.splice(i, 1);
+                setCampeonatos([...campeonatos, data]);
+            }
+
         }
     }
 
@@ -119,6 +132,9 @@ export default function MinhasLigas() {
                                             </TableHead>
                                             <TableHead className="text-center hidden md:table-cell">
                                                 Jogos
+                                            </TableHead>
+                                            <TableHead className="text-center hidden md:table-cell">
+                                                Estatísticas
                                             </TableHead>
 
                                             <TableHead>
@@ -166,6 +182,14 @@ export default function MinhasLigas() {
                                                     </Link>
                                                 </TableCell>
 
+                                                <TableCell className="font-medium">
+                                                    <Link to={`/minhas-ligas/${campeonato.id}/estatisticas`}>
+                                                        <Button className='w-full m-auto' variant='secondary' type='button'>
+                                                            <TrendingUp />
+                                                        </Button>
+                                                    </Link>
+                                                </TableCell>
+
                                                 <TableCell>
                                                     <DropdownMenu>
                                                         <DropdownMenuTrigger asChild>
@@ -179,8 +203,7 @@ export default function MinhasLigas() {
                                                             </Button>
                                                         </DropdownMenuTrigger>
                                                         <DropdownMenuContent className='flex flex-col gap-2' align="end">
-                                                            {/* <UpdatePlayer jogador={jogador} posicoes={posicoes} handleUpdatePlayer={updadePlayer} /> */}
-                                                            <button>Editar</button>
+                                                            <UpdateLeague handleUpdateLeague={handleUpdateLeague} liga={campeonato} />
                                                             <AlertDialog>
                                                                 <AlertDialogTrigger asChild>
                                                                     <Button variant="secondary">
@@ -197,7 +220,7 @@ export default function MinhasLigas() {
                                                                     </AlertDialogHeader>
                                                                     <AlertDialogFooter>
                                                                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                                        <AlertDialogAction>Continuar</AlertDialogAction>
+                                                                        <AlertDialogAction onClick={() => deletarPorId(campeonato)}>Continuar</AlertDialogAction>
                                                                     </AlertDialogFooter>
                                                                 </AlertDialogContent>
                                                             </AlertDialog>
@@ -235,17 +258,6 @@ export default function MinhasLigas() {
                         </Card>
                     </TabsContent>
                 </Tabs>
-
-                <ul>
-                    {campeonatos.map((campeonato, i) => (
-                        <li key={campeonato.id}>
-                            <Link key={campeonato.id} to={`${campeonato.id}`}>
-                                {campeonato.nome}
-                            </Link>
-                            <FontAwesomeIcon key={i} icon={faTrash} onClick={() => deletarPorId(campeonato)} />
-                        </li>
-                    ))}
-                </ul>
             </section>
         </main>
     )
