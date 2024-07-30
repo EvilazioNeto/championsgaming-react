@@ -11,6 +11,7 @@ import GerenciarClubes from './pages/liga/gerenciar-clube/gerenciarClubes';
 import Tabela from './pages/liga/tabela/tabela';
 import GerenciarJogos from './pages/liga/gerenciar-jogos/gerenciarJogos';
 import Artilheiros from './pages/liga/artilheiros/artilheiros';
+import PageNotFound from './pages/pageNotFound/pageNotFound';
 
 function MainRoutes() {
     
@@ -79,6 +80,14 @@ function MainRoutes() {
                 <PrivateRoute>
                     <Layout>
                         <Artilheiros />
+                    </Layout>
+                </PrivateRoute>}
+            />
+
+            <Route path='*' element={
+                <PrivateRoute>
+                    <Layout>
+                        <PageNotFound />
                     </Layout>
                 </PrivateRoute>}
             />
