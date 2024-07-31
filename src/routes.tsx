@@ -10,8 +10,8 @@ import GerenciarLiga from './pages/liga/gerenciar-liga/gerenciarLiga';
 import GerenciarClubes from './pages/liga/gerenciar-clube/gerenciarClubes';
 import Tabela from './pages/liga/tabela/tabela';
 import GerenciarJogos from './pages/liga/gerenciar-jogos/gerenciarJogos';
-import Artilheiros from './pages/liga/artilheiros/artilheiros';
 import PageNotFound from './pages/pageNotFound/pageNotFound';
+import Estatisticas from './pages/liga/estatisticas/estatisticas';
 
 function MainRoutes() {
     
@@ -76,10 +76,10 @@ function MainRoutes() {
                 </PrivateRoute>}
             />
 
-            <Route path='/minhas-ligas/:id/artilheiros' element={
+            <Route path='/minhas-ligas/:id/estatisticas' element={
                 <PrivateRoute>
                     <Layout>
-                        <Artilheiros />
+                        <Estatisticas />
                     </Layout>
                 </PrivateRoute>}
             />

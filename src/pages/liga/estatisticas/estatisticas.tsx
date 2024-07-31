@@ -16,7 +16,7 @@ interface IjogadorStatsProps {
     nome: string;
 }
 
-function Artilheiros() {
+function Estatisticas() {
     const { id } = useParams();
     const [jogadoresStats, setJogadoresStats] = useState<IjogadorStatsProps[]>([])
 
@@ -119,4 +119,4 @@ function Artilheiros() {
     )
 }
 
-export default Artilheiros;
+export default Estatisticas;

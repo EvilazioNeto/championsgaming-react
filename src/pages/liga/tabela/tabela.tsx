@@ -5,22 +5,25 @@ import { IClubeCampeonato } from "../../../interfaces/ClubeCampeonato";
 import { Api } from "../../../services/api/axios-config";
 import { Table, TableHead, TableRow, TableCell, TableBody, TableHeader } from "../../../components/ui/table";
 import styles from './tabela.module.css';
+import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "../../../components/ui/breadcrumb";
+import { Link } from "react-router-dom";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
 
 interface ITabelaProps extends IClubeCampeonato {
     pontos: number,
     nomeClube: string;
+    fotoUrl: string;
 }
 
 function Tabela() {
     const { id } = useParams();
-    const [clubsStas, setClubStats] = useState<ITabelaProps[]>([]);
+    const [clubsStats, setClubStats] = useState<ITabelaProps[]>([]);
 
     useEffect(() => {
         async function getData() {
             try {
                 if (id) {
-                    const idToNumber = parseInt(id);
-                    const response = await getCampeonatoEstatisticas(idToNumber);
+                    const response = await getCampeonatoEstatisticas(Number(id));
 
                     if (response instanceof Error) {
                         return;
@@ -36,6 +39,7 @@ function Tabela() {
 
                             return {
                                 ...data,
+                                fotoUrl: clube ? clube.data.fotoUrl : 'foto não encontrada',
                                 nomeClube: clube ? clube.data.nome : 'Nome não encontrado',
                                 pontos: (data.vitorias * 3) + (data.empates)
                             };
@@ -59,38 +63,97 @@ function Tabela() {
 
     return (
         <main className={styles.tabelaCampeonatoContainer}>
-            <section>
+            <section className="m-auto w-full max-w-screen-xl flex flex-col gap-4">
+                <Breadcrumb className='pb-4'>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <Link to="/">Home</Link>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="flex items-center gap-1">
+                                    <BreadcrumbEllipsis className="h-4 w-4" />
+                                    <span className="sr-only">Toggle menu</span>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start">
+                                    <DropdownMenuItem>
+                                        <Link to="/minhas-ligas">Minhas Ligas</Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            Campeonato
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Tabela</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+
+                <h1 className="text-2xl">TABELA DO CAMPEONATO</h1>
                 <Table>
-                    <TableHeader className="flex flex-col items-center">
-                        <TableHead className="w-full">
-                            <TableRow>
-                                <TableCell>Clube</TableCell>
-                                <TableCell align="center">Pts</TableCell>
-                                <TableCell align="center">PJ</TableCell>
-                                <TableCell align="center">VIT</TableCell>
-                                <TableCell align="center">E</TableCell>
-                                <TableCell align="center">DER</TableCell>
-                                <TableCell align="center">GM</TableCell>
-                                <TableCell align="center">GC</TableCell>
-                                <TableCell align="center">SG</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody className="w-full">
-                            {clubsStas.map((clube) => (
-                                <TableRow key={clube.id} >
-                                    <TableCell>{clube.nomeClube}</TableCell>
-                                    <TableCell align="center">{(clube.vitorias * 3) + (clube.empates)}</TableCell>
-                                    <TableCell align="center">{clube.vitorias + clube.empates + clube.derrotas}</TableCell>
-                                    <TableCell align="center">{clube.vitorias}</TableCell>
-                                    <TableCell align="center">{clube.empates}</TableCell>
-                                    <TableCell align="center">{clube.derrotas}</TableCell>
-                                    <TableCell align="center">{clube.golsPro}</TableCell>
-                                    <TableCell align="center">{clube.golsContra}</TableCell>
-                                    <TableCell align="center">{clube.golsPro - clube.golsContra}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="hidden w-[100px] sm:table-cell">
+                                <span className="sr-only">Image</span>
+                            </TableHead>
+                            <TableHead>Clube</TableHead>
+                            <TableHead>Pts</TableHead>
+                            <TableHead>PJ</TableHead>
+                            <TableHead >VIT</TableHead>
+                            <TableHead >EMP</TableHead>
+                            <TableHead>DER</TableHead>
+                            <TableHead className="max-sm:hidden">GM</TableHead>
+                            <TableHead className="max-sm:hidden">GC</TableHead>
+                            <TableHead>SG</TableHead>
+                        </TableRow>
                     </TableHeader>
+                    <TableBody>
+                        {clubsStats.map((clubStats) => (
+                            <TableRow key={clubStats.id}>
+                                <TableCell className="hidden sm:table-cell">
+                                    <img
+                                        alt="club image"
+                                        className="aspect-square rounded-md object-cover"
+                                        height="40"
+                                        src={clubStats.fotoUrl}
+                                        width="40"
+                                    />
+                                </TableCell>
+                                <TableCell className="font-medium">
+                                    {clubStats.nomeClube}
+                                </TableCell>
+                                <TableCell>
+                                    {(clubStats.vitorias * 3) + (clubStats.empates)}
+                                </TableCell>
+                                <TableCell>
+                                    {clubStats.vitorias + clubStats.empates + clubStats.derrotas}
+                                </TableCell>
+                                <TableCell>
+                                    {clubStats.vitorias}
+                                </TableCell>
+                                <TableCell>
+                                    {clubStats.empates}
+                                </TableCell>
+                                <TableCell>
+                                    {clubStats.derrotas}
+                                </TableCell>
+                                <TableCell className="max-sm:hidden">
+                                    {clubStats.golsPro}
+                                </TableCell>
+                                <TableCell className="max-sm:hidden">
+                                    {clubStats.golsContra}
+                                </TableCell>
+                                <TableCell>
+                                    {clubStats.golsPro - clubStats.golsContra}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
                 </Table>
             </section>
         </main>
