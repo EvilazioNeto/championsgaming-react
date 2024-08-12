@@ -88,19 +88,6 @@
                     justify-content: center;
                     gap: 1rem;
 
-                    input{
-                        padding: .5rem;
-                    }
-
-                    button{
-                        background-color: var(--cor-verde);
-                        border: none;
-                        padding: .5rem 1rem;
-                        color: #fff;
-                        font-weight: bold;
-                        border-radius: .25rem;
-                        cursor: pointer;
-                    }
                 } 
             }
 

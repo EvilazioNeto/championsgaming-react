@@ -8,6 +8,7 @@ import styles from './tabela.module.css';
 import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "../../../components/ui/breadcrumb";
 import { Link } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
+import { ICampeonato } from "../../../interfaces/Campeonato";
 
 interface ITabelaProps extends IClubeCampeonato {
     pontos: number,
@@ -18,11 +19,17 @@ interface ITabelaProps extends IClubeCampeonato {
 function Tabela() {
     const { id } = useParams();
     const [clubsStats, setClubStats] = useState<ITabelaProps[]>([]);
+    const [campeonato, setCampeonato] = useState<ICampeonato>({} as ICampeonato);
 
     useEffect(() => {
         async function getData() {
             try {
                 if (id) {
+                    const campeonatoRes = await Api.get(`/campeonatos/${id}`)
+
+                    if (campeonatoRes.status === 200) {
+                        setCampeonato(campeonatoRes.data);
+                    }
                     const response = await getCampeonatoEstatisticas(Number(id));
 
                     if (response instanceof Error) {
@@ -85,7 +92,7 @@ function Tabela() {
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            Campeonato
+                            {campeonato.nome}
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>

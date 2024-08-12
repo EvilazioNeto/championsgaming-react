@@ -22,6 +22,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { jogosValidationSchema } from '../../../utils/jogoValidation';
 import { formatToDate } from '../../../utils/formatToDate';
 import { toast } from 'react-toastify';
+import { Input } from '../../../components/ui/input';
+import { Button } from '../../../components/ui/button';
 
 interface IPosicoesProps {
     id: number,
@@ -469,19 +471,19 @@ function GerenciarJogos() {
                     </div> */}
                     <div className={styles.jogoContainer}>
                         <div className={styles.placar}>
-                            <h2>{golsClube1} x {golsClube2}</h2>
+                            <h2 className='text-xl'>{golsClube1} x {golsClube2}</h2>
                         </div>
                         <div className={styles.camposContainer}>
                             <div className={styles.campo}>
                                 <div>
                                     <p>Clube 1</p>
-                                    <select name="" id="" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeClub("clube1", Number(e.target.value))}>
+                                    <select className='bg-transparent border rounded-lg border-cyan-950' name="" id="" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeClub("clube1", Number(e.target.value))}>
                                         {arrClubs.map((clube) => (
                                             clube.id !== clube2Id &&
                                             <option key={clube.id} value={clube.id}>{clube.nome}</option>
                                         ))}
                                     </select>
-                                    <select onChange={(e) => handleSistemaTatico(e.target.value, "clube1")}>
+                                    <select className='bg-transparent border rounded-lg border-cyan-950' onChange={(e) => handleSistemaTatico(e.target.value, "clube1")}>
                                         <option value="4-3-3">4-3-3</option>
                                         <option value="4-4-2">4-4-2</option>
                                         <option value="3-5-2">3-5-2</option>
@@ -510,13 +512,13 @@ function GerenciarJogos() {
                             <div className={styles.campo}>
                                 <div>
                                     <p>Clube 2</p>
-                                    <select onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeClub("clube2", Number(e.target.value))}>
+                                    <select className='bg-transparent border rounded-lg border-cyan-950' onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeClub("clube2", Number(e.target.value))}>
                                         {arrClubs.map((clube) => (
                                             clube.id !== clube1Id &&
                                             <option key={clube.id} value={clube.id}>{clube.nome}</option>
                                         ))}
                                     </select>
-                                    <select onChange={(e) => handleSistemaTatico(e.target.value, "clube2")}>
+                                    <select className='bg-transparent border rounded-lg border-cyan-950' onChange={(e) => handleSistemaTatico(e.target.value, "clube2")}>
                                         <option value="4-3-3">4-3-3</option>
                                         <option value="4-4-2">4-4-2</option>
                                         <option value="3-5-2">3-5-2</option>
@@ -543,23 +545,23 @@ function GerenciarJogos() {
                             </div>
                         </div>
                         <div className={styles.detalhesJogo}>
-                            <form onSubmit={handleSubmit(onSubmit)}>
+                            <form className='flex items-center' onSubmit={handleSubmit(onSubmit)}>
                                 <div>
                                     <p>Local do jogo</p>
-                                    <input   {...register('localJogo')} type="text" placeholder='Ex: Camp Nou' />
+                                    <Input   {...register('localJogo')} type="text" placeholder='Ex: Camp Nou' />
                                     <div className={styles.msgError}>{errors.localJogo?.message}</div>
                                 </div>
                                 <div>
                                     <p>Data jogo:</p>
-                                    <input type="date"   {...register('dataJogo')} />
+                                    <Input type="date"   {...register('dataJogo')} />
                                     <div className={styles.msgError}>{typeof errors.dataJogo?.message === 'string' && errors.dataJogo?.message}</div>
                                 </div>
                                 <div>
                                     <p>Horario do jogo</p>
-                                    <input type="time"   {...register('horaJogo')} />
+                                    <Input type="time"   {...register('horaJogo')} />
                                     <div className={styles.msgError}>{typeof errors.horaJogo?.message === 'string' && errors.horaJogo?.message}</div>
                                 </div>
-                                <button>CRIAR JOGO</button>
+                                <Button>CRIAR JOGO</Button>
                             </form>
                         </div>
                     </div>

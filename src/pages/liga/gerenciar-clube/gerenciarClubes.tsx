@@ -156,7 +156,6 @@ function GerenciarClubes() {
     }
 
     async function handleAddClub(data: Omit<IClube, 'id'>) {
-        console.log(data)
         try {
             const response = await criarClube(data)
 
@@ -167,6 +166,10 @@ function GerenciarClubes() {
                 }
 
                 setArrClubs([...arrClubs, novoClube])
+
+                if(!clubeSelecionado){
+                    setClubeSelecionado(novoClube);
+                }
 
                 const infoClubeTabela: Omit<IClubeCampeonato, 'id'> = {
                     campeonatoId: campeonato.id,
@@ -374,7 +377,7 @@ function GerenciarClubes() {
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
-                                <Link to={`/minhas-ligas/${id}`}>Campeonato</Link>
+                                {campeonato.nome}
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
@@ -419,7 +422,7 @@ function GerenciarClubes() {
                                             <h2 className='text-3xl'>{clubeSelecionado?.nome}</h2>
                                             <p>Jogadores: {jogadores.length}</p>
                                             <p>Média de idade: {jogadores.length > 0 ? (jogadores.reduce((acc, jogador) => acc + calcularIdade(jogador.dataNascimento), 0) / jogadores.length).toFixed(2) : 0}</p>
-                                            <p>Classificação: 1°</p>
+                                            <p>Classificação: x°</p>
                                             <p>Mascote: {clubeSelecionado?.mascote}</p>
                                         </div>
                                     </div>

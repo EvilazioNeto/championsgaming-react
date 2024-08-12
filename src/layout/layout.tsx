@@ -112,7 +112,7 @@ function Layout({ children }: { children: ReactNode }) {
                             </Link>
                         </nav>
                     </div>
-                    <div className="mt-auto p-4 fixed bottom-0 w-[219px] lg:w-[279px]">
+                    <div className="max-lg:hidden mt-auto p-4 fixed bottom-0 w-[219px] lg:w-[279px]">
                         <Card x-chunk="dashboard-02-chunk-0">
                             <CardHeader className="p-2 pt-0 md:p-4">
                                 <CardTitle>Seja Pro</CardTitle>
