@@ -1,5 +1,4 @@
 import { Routes, Route } from 'react-router-dom';
-import Login from './pages/login/login';
 import Cadastro from './pages/cadastro/cadastro';
 import Home from './pages/home/home';
 import { PrivateRoute } from './privateRoute';
@@ -12,6 +11,7 @@ import Tabela from './pages/liga/tabela/tabela';
 import GerenciarJogos from './pages/liga/gerenciar-jogos/gerenciarJogos';
 import PageNotFound from './pages/pageNotFound/pageNotFound';
 import Estatisticas from './pages/liga/estatisticas/estatisticas';
+import { Login } from './pages/login/login';
 
 function MainRoutes() {
     
