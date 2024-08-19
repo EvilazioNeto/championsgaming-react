@@ -12,13 +12,21 @@ import PageNotFound from './pages/pageNotFound/pageNotFound';
 import Estatisticas from './pages/liga/estatisticas/estatisticas';
 import { Login } from './pages/login/login';
 import { Cadastro } from './pages/cadastro/cadastro';
+import ViewStats from './pages/liga/view-stats/view-stats';
 
 function MainRoutes() {
-    
+
     return (
         <Routes>
             <Route path='/login' element={<Login />} />
             <Route path='/cadastre-se' element={<Cadastro />} />
+
+            <Route path='/campeonato/:id' element={
+                <Layout>
+                    <ViewStats />
+                </Layout>
+            }
+            />
 
             <Route path='/' element={
                 <PrivateRoute>
@@ -67,7 +75,7 @@ function MainRoutes() {
                     </Layout>
                 </PrivateRoute>}
             />
-            
+
             <Route path='/minhas-ligas/:id/jogos' element={
                 <PrivateRoute>
                     <Layout>
@@ -91,7 +99,7 @@ function MainRoutes() {
                     </Layout>
                 </PrivateRoute>}
             />
-  
+
         </Routes>
     )
 }

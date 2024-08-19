@@ -19,6 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Label } from '../../../components/ui/label';
 import AddLeague from '../../../components/Modal/League/AddLeague';
 import UpdateLeague from '../../../components/Modal/League/UpdateLeague';
+import { Compartilhar } from '../../../components/Modal/Compartilhar';
 
 export default function MinhasLigas() {
     const auth = useAuth();
@@ -224,6 +225,7 @@ export default function MinhasLigas() {
                                                                     </AlertDialogFooter>
                                                                 </AlertDialogContent>
                                                             </AlertDialog>
+                                                            <Compartilhar id={campeonato.id}/>
                                                         </DropdownMenuContent>
                                                     </DropdownMenu>
                                                 </TableCell>

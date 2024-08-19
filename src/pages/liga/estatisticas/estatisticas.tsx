@@ -151,9 +151,9 @@ function Estatisticas() {
         },
     } satisfies ChartConfig
 
-    useEffect(() => {
-        console.log(jogadoresStats)
-    }, [jogadoresStats])
+    // useEffect(() => {
+    //     console.log(jogadoresStats)
+    // }, [jogadoresStats])
 
     return (
         <main>
