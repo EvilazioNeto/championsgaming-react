@@ -147,30 +147,6 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                             </FormItem>
                         )} />
 
-                        <FormField
-                            control={form.control}
-                            name="posicaoId"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Posições</FormLabel>
-                                    <Select defaultValue={String(field.value)} onValueChange={field.onChange}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue>{posicoes.find(pos => pos.id === field.value)?.nome}</SelectValue>
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            {posicoes.map((posicao) => (
-                                                <SelectItem key={posicao.id} value={String(posicao.id)}>
-                                                    {posicao.nome}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </FormItem>
-                            )}
-                        />
-
                         <FormField control={form.control} name="nacionalidade" render={({ field }) => (
                             <FormItem>
                                 <FormLabel>Nacionalidade</FormLabel>
@@ -188,6 +164,30 @@ function AddPlayer({ handleAddPlayer, clubeId, posicoes }: AddPlayerProps) {
                                 </FormControl>
                             </FormItem>
                         )} />
+
+                        <FormField
+                            control={form.control}
+                            name="posicaoId"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Posição</FormLabel>
+                                    <Select defaultValue={String(field.value)} onValueChange={field.onChange}>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue>{posicoes.find(pos => pos.id === field.value)?.nome}</SelectValue>
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {posicoes.map((posicao) => (
+                                                <SelectItem key={posicao.id} value={String(posicao.id)}>
+                                                    {posicao.nome}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </FormItem>
+                            )}
+                        />
 
                         <FormField control={form.control} name="dataNascimento" render={({ field }) => (
                             <FormItem className="flex flex-col">

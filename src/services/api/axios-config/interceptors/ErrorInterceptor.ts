@@ -6,7 +6,9 @@ export const errorInterceptor = (error: AxiosError) => {
     }
 
     if(error.response?.status === 401){
-        // return Promise.reject(new Error(''))
+        localStorage.removeItem('u');
+        window.location.href = '/login';
+        return Promise.reject(new Error('Sua sessão expirou. Faça login novamente.'));
     }
 
     return Promise.reject(error);
