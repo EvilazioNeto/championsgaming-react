@@ -148,7 +148,7 @@ export default function MinhasLigas() {
                                             <TableRow key={campeonato.id}>
                                                 <TableCell className="hidden sm:table-cell">
                                                     <img
-                                                        alt="player image"
+                                                        alt="club image"
                                                         className="aspect-square rounded-md object-cover"
                                                         height="64"
                                                         src={campeonato.fotoUrl}
