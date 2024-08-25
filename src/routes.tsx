@@ -13,6 +13,7 @@ import Estatisticas from './pages/liga/estatisticas/estatisticas';
 import { Login } from './pages/login/login';
 import { Cadastro } from './pages/cadastro/cadastro';
 import ViewStats from './pages/liga/view-stats/view-stats';
+import UserLayout from './layout/UserLayout';
 
 function MainRoutes() {
 
@@ -22,9 +23,9 @@ function MainRoutes() {
             <Route path='/cadastre-se' element={<Cadastro />} />
 
             <Route path='/campeonato/:id' element={
-                <Layout>
+                <UserLayout>
                     <ViewStats />
-                </Layout>
+                </UserLayout>
             }
             />
 

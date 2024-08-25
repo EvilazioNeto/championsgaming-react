@@ -17,7 +17,7 @@ import { calcularIdade } from '../../../utils/calcularIdade';
 import Loading from '../../../components/Loading/Loading';
 import UpdateClub from '../../../components/Modal/Club/UpdateClub/UpdateClub';
 import { atualizarJogadorPorId, criarJogador, deletarJogadorPorId, obterJogadoresDoClubePorId, obterPosicoes } from '../../../services/player/playerService';
-import { criarClube, criarClubeCampeonatoEstatisticas, deletarCampeonatoClubeEstatisticas, deletarClubePorId, getCampeonatoEstatisticas } from '../../../services/api/club/clubService';
+import { criarClube, criarClubeCampeonatoEstatisticas, deletarCampeonatoClubeEstatisticas, deletarClubePorId, getCampeonatoEstatisticas } from '../../../services/club/clubService';
 import { Button } from '../../../components/ui/button';
 import { DeletarItemModal } from '../../../components/Modal/Deletar';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '../../../components/ui/carousel';

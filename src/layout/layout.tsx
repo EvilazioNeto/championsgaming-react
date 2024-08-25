@@ -32,8 +32,6 @@ import { ReactNode, useState } from "react"
 import { ModeToggle } from "../components/mode-toggle"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faFutbol } from "@fortawesome/free-solid-svg-icons"
-import logo_vermelho from '/logo-sem-fundo.png'
-import logo_branco from '/logo-sem-fundo-branco.png'
 import { useAuth } from "../contexts/AuthProvider/useAuth"
 
 function Layout({ children }: { children: ReactNode }) {
@@ -64,7 +62,7 @@ function Layout({ children }: { children: ReactNode }) {
                 <div className="flex h-full max-h-screen flex-col gap-2">
                     <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
                         <Link to="/" className="flex items-center gap-2 font-semibold">
-                            <img src={corLogo === "dark" ? logo_branco : logo_vermelho} width={40} />
+                            <img src={corLogo === "dark" ? "/logo-sem-fundo-branco.png" : "/logo-sem-fundo.png"} width={40} />
                             <span className="">Champions Gaming</span>
                         </Link>
                     </div>
@@ -148,7 +146,7 @@ function Layout({ children }: { children: ReactNode }) {
                                     to="#"
                                     className="flex items-center gap-2 text-lg font-semibold"
                                 >
-                                    <img src={corLogo === "dark" ? logo_branco : logo_vermelho} width={40} />
+                                    <img src={corLogo === "dark" ? "/logo-sem-fundo-branco.png" : "/logo-sem-fundo.png"} width={40} />
                                     <span className="sr-only">Champions Gaming</span>
                                 </Link>
                                 <Link

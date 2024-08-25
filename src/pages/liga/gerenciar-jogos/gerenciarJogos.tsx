@@ -6,9 +6,8 @@ import { ICampeonato } from '../../../interfaces/Campeonato';
 import { IJogo } from '../../../interfaces/Jogos';
 import { IClube } from '../../../interfaces/Clube';
 import { IClubeCampeonato } from '../../../interfaces/ClubeCampeonato';
-import { getCampeonatoEstatisticas } from '../../../services/api/club/clubService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAdd, faUserEdit, faX } from '@fortawesome/free-solid-svg-icons';
+import { faX } from '@fortawesome/free-solid-svg-icons';
 import ListPlayers from '../../../components/Modal/Player/ListPlayers/ListPlayers';
 import { IJogador } from '../../../interfaces/Jogador';
 import { obterJogadoresDoClubePorId } from '../../../services/player/playerService';
@@ -24,6 +23,7 @@ import { formatToDate } from '../../../utils/formatToDate';
 import { toast } from 'react-toastify';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
+import { getCampeonatoEstatisticas } from '../../../services/club/clubService';
 
 interface IPosicoesProps {
     id: number,

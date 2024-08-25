@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCampeonatoEstatisticas } from "../../../services/api/club/clubService";
 import { IClubeCampeonato } from "../../../interfaces/ClubeCampeonato";
 import { Api } from "../../../services/api/axios-config";
 import { Table, TableHead, TableRow, TableCell, TableBody, TableHeader } from "../../../components/ui/table";
@@ -9,6 +8,7 @@ import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbList, Breadcr
 import { Link } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
 import { ICampeonato } from "../../../interfaces/Campeonato";
+import { getCampeonatoEstatisticas } from "../../../services/club/clubService";
 
 interface ITabelaProps extends IClubeCampeonato {
     pontos: number,

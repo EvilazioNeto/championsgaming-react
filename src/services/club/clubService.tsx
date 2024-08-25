@@ -1,7 +1,7 @@
 import { toast } from "react-toastify";
-import { IClubeCampeonato } from "../../../interfaces/ClubeCampeonato";
-import { Api } from "../axios-config";
-import { IClube } from "../../../interfaces/Clube";
+import { IClubeCampeonato } from "../../interfaces/ClubeCampeonato";
+import { Api } from "../api/axios-config";
+import { IClube } from "../../interfaces/Clube";
 
 export async function getCampeonatoEstatisticas(id: number): Promise<IClubeCampeonato[] | Error> {
     try {

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Api } from "../../../services/api/axios-config";
-import { getCampeonatoEstatisticas } from "../../../services/api/club/clubService";
 import { IClubeCampeonato } from "../../../interfaces/ClubeCampeonato";
 import { IClube } from "../../../interfaces/Clube";
 import { IJogadorJogo } from "../../../interfaces/JogadorJogo";
@@ -15,6 +14,7 @@ import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbList, Breadcr
 import { Link } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
 import { ICampeonato } from "../../../interfaces/Campeonato";
+import { getCampeonatoEstatisticas } from "../../../services/club/clubService";
 
 interface IjogadorStatsProps {
     assistencias: number;
