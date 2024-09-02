@@ -6,19 +6,34 @@ import { obterCampeonatoPorId } from "../../../services/league/campeonatoService
 import { Card } from "../../../components/ui/card";
 import formatarDataString from "../../../utils/formatarDataString";
 import { Button } from "../../../components/ui/button";
-import { Bell, ChevronLeft, ChevronRight } from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table";
 import { IClubeCampeonato } from "../../../interfaces/ClubeCampeonato";
 import { getCampeonatoEstatisticas } from "../../../services/club/clubService";
 import { Api } from "../../../services/api/axios-config";
 import { toast } from "react-toastify";
 import { IJogo } from "../../../interfaces/Jogos";
+import { IClube } from "../../../interfaces/Clube";
+import { IJogador } from "../../../interfaces/Jogador";
+import { IJogadorJogo } from "../../../interfaces/JogadorJogo";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
 
 interface ITabelaProps extends IClubeCampeonato {
     pontos: number;
     nomeClube: string;
     fotoUrl: string;
 }
+
+interface IjogadorStatsProps {
+    assistencias: number;
+    cartoesAmarelos: number;
+    cartoesVermelhos: number;
+    gols: number;
+    jogadorId: number;
+    nome: string;
+    fotoUrl: string;
+}
+
 
 function ViewStats() {
     const { id } = useParams();
@@ -28,6 +43,8 @@ function ViewStats() {
     const [jogos, setJogos] = useState<IJogo[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState<number>(0);
+    const [campId, setCampId] = useState<string>('');
+    const [jogadoresStats, setJogadoresStats] = useState<IjogadorStatsProps[]>([]);
 
     useEffect(() => {
         if (campeonato) {
@@ -52,10 +69,74 @@ function ViewStats() {
                     return Api.get(`/clubes/${info.clubeId}`);
                 });
 
-                const clubes = await Promise.all(promessas);
+                const clubesRes = await Promise.all(promessas);
+
+                let clubes: IClube[] = [];
+                clubesRes.forEach((res) => {
+                    if (res.status === 200) {
+                        clubes = [...clubes, res.data];
+                    }
+                });
+
+                const jogadoresPromessas = clubes.map((clube: IClube) => {
+                    return Api.get(`/clubes/${clube.id}/jogadores`);
+                });
+
+                const jogadoresRes = await Promise.all(jogadoresPromessas);
+
+                let jogadores: IJogador[] = [];
+                jogadoresRes.forEach((res) => {
+                    if (res.status === 200) {
+                        jogadores = [...jogadores, ...res.data];
+                    }
+                });
+
+                const jogadoresStatsPromessas = jogadores.map((jogador: IJogador) => {
+                    return Api.get(`/jogadores/${jogador.id}/jogos`);
+                });
+
+                const jogadorStatsRes = await Promise.all(jogadoresStatsPromessas);
+                let jogadoresStats: IJogadorJogo[] = [];
+                jogadorStatsRes.forEach((res) => {
+                    if (res.status === 200) {
+                        if (res.data.length > 0) {
+                            jogadoresStats = [...jogadoresStats, ...res.data];
+                        }
+                    }
+                });
+
+                const jogadoresGols: { [key: number]: { gols: number, assistencias: number, nome: string, fotoUrl: string, cartoesAmarelos: number, cartoesVermelhos: number } } = {};
+                jogadoresStats.forEach((jogadorStats) => {
+                    if (!jogadoresGols[jogadorStats.jogadorId]) {
+                        jogadoresGols[jogadorStats.jogadorId] = { gols: 0, assistencias: 0, nome: '', fotoUrl: '', cartoesAmarelos: 0, cartoesVermelhos: 0 };
+                    }
+                    jogadoresGols[jogadorStats.jogadorId].gols += jogadorStats.gols;
+                    jogadoresGols[jogadorStats.jogadorId].assistencias += jogadorStats.assistencias;
+                    jogadoresGols[jogadorStats.jogadorId].cartoesAmarelos += jogadorStats.cartaoAmarelo;
+                    jogadoresGols[jogadorStats.jogadorId].cartoesVermelhos += jogadorStats.cartaoVermelho;
+                    jogadores.map((jogador) => {
+                        if (jogador.id === jogadorStats.jogadorId) {
+                            jogadoresGols[jogadorStats.jogadorId].nome = jogador.nome
+                            jogadoresGols[jogadorStats.jogadorId].fotoUrl = jogador.fotoUrl
+                        }
+                    })
+                });
+
+                const jogadoresGolsArray = Object.keys(jogadoresGols).map((jogadorId) => ({
+                    jogadorId: Number(jogadorId),
+                    ...jogadoresGols[Number(jogadorId)]
+                }));
+
+                setJogadoresStats(jogadoresGolsArray.sort((a, b) => {
+                    if (b.gols !== a.gols) {
+                        return b.gols - a.gols;
+                    } else {
+                        return a.nome.localeCompare(b.nome);
+                    }
+                }));
 
                 const tabelaAtt = response.map((data) => {
-                    const clube = clubes.find(clube => clube.data.id === data.clubeId);
+                    const clube = clubesRes.find(clube => clube.data.id === data.clubeId);
 
                     return {
                         ...data,
@@ -69,6 +150,8 @@ function ViewStats() {
                 });
 
                 setClubStats(tabelaAtt);
+
+
             } catch (error) {
                 console.log(error);
             }
@@ -91,6 +174,12 @@ function ViewStats() {
         }
         handleRodadas();
     }, [rodada, id]);
+
+    function encontrarCampeonato() {
+        if (campId.length > 0) {
+            window.location.href = `http://localhost:5173/campeonato/${campId}`;
+        }
+    }
 
     const currentGames = jogos.slice((currentPage - 1) * perPage, currentPage * perPage);
 
@@ -133,9 +222,9 @@ function ViewStats() {
                         </Card>
 
                         <div className="flex gap-4">
-                            <div className="w-[850px]">
+                            <div className="w-[800px]">
                                 <h1 className="text-xl">Tabela do Campeonato</h1>
-                                <Table className="w-full">
+                                <Table className="w-full border border-gray-500">
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead></TableHead>
@@ -154,7 +243,7 @@ function ViewStats() {
                                     <TableBody>
                                         {clubsStats.map((clube, index) => (
                                             <TableRow key={clube.id}>
-                                                <TableCell>
+                                                <TableCell className="flex justify-center">
                                                     <span className={`font-black text-white ${getCorClass(index)} rounded-full p-3 w-[20px] h-[20px] flex justify-center items-center`}>
                                                         {index + 1}
                                                     </span>
@@ -163,9 +252,9 @@ function ViewStats() {
                                                     <img
                                                         alt="club image"
                                                         className="aspect-square rounded-md object-cover"
-                                                        height="40"
+                                                        height="35"
                                                         src={clube.fotoUrl}
-                                                        width="40"
+                                                        width="35"
                                                     />
                                                 </TableCell>
                                                 <TableCell className="font-medium">
@@ -234,12 +323,129 @@ function ViewStats() {
 
                             </div>
                         </div>
+
+
+                        <div className="flex flex-col gap-4">
+                            <h2 className="text-xl">Melhores Jogadores</h2>
+                            <div className="flex gap-2">
+                                <div className="w-[50%]">
+                                    <h2>Artilheiros</h2>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="hidden w-[100px] sm:table-cell">
+                                                    <span className="sr-only">Image</span>
+                                                </TableHead>
+                                                <TableHead>Jogador</TableHead>
+                                                <TableHead>Gols</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {jogadoresStats.map((jogStats) =>
+                                                jogStats.gols > 0 && (
+                                                    <TableRow key={jogStats.jogadorId}>
+                                                        <TableCell className="font-medium">
+                                                            <img
+                                                                alt="club image"
+                                                                className="aspect-square rounded-md object-cover"
+                                                                height="50"
+                                                                src={jogStats.fotoUrl}
+                                                                width="50"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {jogStats.nome}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {jogStats.gols}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    aria-haspopup="true"
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                >
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                    <span className="sr-only">Toggle menu</span>
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className='flex flex-col gap-2' align="end">
+                                                                <Button variant='secondary'>Detalhes</Button>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                    </TableRow>
+                                                )
+                                            )}
+
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                                <div className="w-[50%]">
+                                    <h2>Garçons</h2>
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead className="hidden w-[100px] sm:table-cell">
+                                                    <span className="sr-only">Image</span>
+                                                </TableHead>
+                                                <TableHead>Jogador</TableHead>
+                                                <TableHead>Assistências</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {jogadoresStats.map((jogStats) => (
+                                                jogStats.assistencias > 0 &&
+                                                <TableRow key={jogStats.jogadorId}>
+                                                    <TableCell className="font-medium">
+                                                        <img
+                                                            alt="club image"
+                                                            className="aspect-square rounded-md object-cover"
+                                                            height="50"
+                                                            src={jogStats.fotoUrl}
+                                                            width="50"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell >
+                                                        {jogStats.nome}
+                                                    </TableCell>
+                                                    <TableCell >
+                                                        {jogStats.assistencias}
+                                                    </TableCell>
+
+                                                    <TableCell>
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild>
+                                                                <Button
+                                                                    aria-haspopup="true"
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                >
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                    <span className="sr-only">Toggle menu</span>
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent className='flex flex-col gap-2' align="end">
+                                                                <Button variant='secondary'>Detalhes</Button>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            </div>
+                        </div>
                     </>
 
                 ) : (
                     <div>
                         <h1>Informe O ID do campeonato</h1>
-                        <Input type="text" />
+                        <Input onChange={(e) => setCampId(e.target.value)} type="text" />
+                        <Button onClick={() => encontrarCampeonato()}>Procurar Campeonato</Button>
                     </div>
                 )}
             </section>

@@ -14,6 +14,7 @@ import { Login } from './pages/login/login';
 import { Cadastro } from './pages/cadastro/cadastro';
 import ViewStats from './pages/liga/view-stats/view-stats';
 import UserLayout from './layout/UserLayout';
+import EsqueceuSenha from './pages/EsqueceuSenha/EsqueceuSenha';
 
 function MainRoutes() {
 
@@ -21,6 +22,7 @@ function MainRoutes() {
         <Routes>
             <Route path='/login' element={<Login />} />
             <Route path='/cadastre-se' element={<Cadastro />} />
+            <Route path='/esqueceu-senha' element={<EsqueceuSenha />} />
 
             <Route path='/campeonato/:id' element={
                 <UserLayout>

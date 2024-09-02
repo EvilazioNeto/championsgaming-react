@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useState } from "react";
 import { ModeToggle } from "../mode-toggle";
 
 function Header() {
     const [corLogo, setCorLogo] = useState<string>("dark");
+    const { id } = useParams();
 
     function onChangeTheme(e: string) {
         if (e === "dark") {
@@ -18,7 +19,7 @@ function Header() {
             <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
                 <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
                     <div className="flex h-14 items-center px-4 lg:h-[60px] lg:px-6">
-                        <Link to="/" className="flex items-center gap-2 font-semibold">
+                        <Link to={`http://localhost:5173/campeonato/${id}`} className="flex items-center gap-2 font-semibold">
                             <img src={corLogo === "dark" ? "/logo-sem-fundo-branco.png" : "/logo-sem-fundo.png"} width={40} />
                             <span className="">Champions Gaming</span>
                         </Link>

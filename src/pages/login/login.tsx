@@ -1,15 +1,3 @@
-interface ApiErrorResponse {
-    response?: {
-        status: number,
-        data?: {
-            errors?: {
-                default?: string;
-            };
-        };
-    };
-    message?: string;
-}
-
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "../../components/ui/button"
 import {
@@ -27,6 +15,18 @@ import { useAuth } from "../../contexts/AuthProvider/useAuth";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { toast } from "react-toastify";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "../../components/ui/form";
+
+interface ApiErrorResponse {
+    response?: {
+        status: number,
+        data?: {
+            errors?: {
+                default?: string;
+            };
+        };
+    };
+    message?: string;
+}
 
 export function Login() {
     const { authenticate } = useAuth();
@@ -96,7 +96,7 @@ export function Login() {
                                 <div className="grid gap-2">
                                     <div className="flex items-center">
                                         <Label htmlFor="password">Senha</Label>
-                                        <Link to="#" className="ml-auto inline-block text-sm underline">
+                                        <Link to="/esqueceu-senha" className="ml-auto inline-block text-sm underline">
                                             Esqueceu sua senha?
                                         </Link>
                                     </div>

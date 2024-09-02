@@ -10,13 +10,14 @@ import {
 import { useTheme } from "../components/theme-provider"
 
 interface ModeToggleProps {
-  onChange: (theme: string) => void
+  onChange?: (theme: string) => void
 }
 
 export function ModeToggle({ onChange }: ModeToggleProps) {
   const { setTheme } = useTheme();
 
   function changeTheme(theme: string) {
+    if(onChange)
     onChange(theme)
     if (theme === "light") {
       setTheme("light");
