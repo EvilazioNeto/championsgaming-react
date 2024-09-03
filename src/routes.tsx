@@ -15,6 +15,7 @@ import { Cadastro } from './pages/cadastro/cadastro';
 import ViewStats from './pages/liga/view-stats/view-stats';
 import UserLayout from './layout/UserLayout';
 import EsqueceuSenha from './pages/EsqueceuSenha/EsqueceuSenha';
+import RedefinirSenha from './pages/EsqueceuSenha/RedefinirSenha';
 
 function MainRoutes() {
 
@@ -23,6 +24,7 @@ function MainRoutes() {
             <Route path='/login' element={<Login />} />
             <Route path='/cadastre-se' element={<Cadastro />} />
             <Route path='/esqueceu-senha' element={<EsqueceuSenha />} />
+            <Route path='/reset-password/:token' element={<RedefinirSenha />} />
 
             <Route path='/campeonato/:id' element={
                 <UserLayout>

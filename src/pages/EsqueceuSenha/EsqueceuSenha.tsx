@@ -36,20 +36,22 @@ function EsqueceuSenha() {
 
 
 
-    async function onSubmit(data: { email: string }) { 
+    async function onSubmit(data: { email: string }) {
         try {
             const res = await Api.post('/forgot-password', { email: data.email });
 
             if (res.status === 200) {
                 console.log(res.data);
-
-                toast.success("Email enviado para: " + data.email )
+                toast.success("Email enviado para: " + data.email)
+                form.reset();
             }
 
         } catch (error) {
             const apiError = error as ApiErrorResponse;
             console.log(apiError.response);
             if (apiError.response?.status === 404) {
+                toast.error(apiError.response.data?.errors?.default);
+            } else if (apiError.response?.status === 400) {
                 toast.error(apiError.response.data?.errors?.default);
             } else {
                 toast.error('Ocorreu um erro desconhecido');
