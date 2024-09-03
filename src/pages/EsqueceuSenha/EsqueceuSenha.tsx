@@ -8,6 +8,8 @@ import * as yup from 'yup'
 import { ModeToggle } from "../../components/mode-toggle";
 import { Api } from "../../services/api/axios-config";
 import { toast } from "react-toastify";
+import { Loader2 } from "lucide-react";
+import { useState } from "react";
 
 export const recuperarSenhaValidationSchema = yup.object().shape({
     email: yup.string().email('E-mail deve ser válido').required('E-mail é obrigatório').matches(/\S+@\S+\.\S+/, 'E-mail deve ser válido'),
@@ -26,6 +28,7 @@ interface ApiErrorResponse {
 }
 
 function EsqueceuSenha() {
+    const [loadingBtn, setLoadingBtn] = useState<boolean>(false);
     const form = useForm({
         resolver: yupResolver(recuperarSenhaValidationSchema),
         mode: 'onChange',
@@ -35,18 +38,20 @@ function EsqueceuSenha() {
     });
 
 
-
     async function onSubmit(data: { email: string }) {
         try {
+            setLoadingBtn(true);
             const res = await Api.post('/forgot-password', { email: data.email });
 
             if (res.status === 200) {
                 console.log(res.data);
                 toast.success("Email enviado para: " + data.email)
                 form.reset();
+                setLoadingBtn(false);
             }
 
         } catch (error) {
+            setLoadingBtn(false);
             const apiError = error as ApiErrorResponse;
             console.log(apiError.response);
             if (apiError.response?.status === 404) {
@@ -90,9 +95,19 @@ function EsqueceuSenha() {
                                         </FormControl>
                                     </FormItem>
                                 )} />
-                                <Button type="submit" className="w-full">
-                                    Enviar
-                                </Button>
+
+
+                                {loadingBtn ? (
+                                    <Button disabled>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Um momento
+                                    </Button>
+                                ) : (
+                                    <Button type="submit" className="w-full">
+                                        Enviar
+                                    </Button>
+                                )}
+
                             </form>
                         </Form>
                     </CardContent>
