@@ -6,7 +6,7 @@ import { obterCampeonatoPorId } from "../../../services/league/campeonatoService
 import { Card } from "../../../components/ui/card";
 import formatarDataString from "../../../utils/formatarDataString";
 import { Button } from "../../../components/ui/button";
-import { Bell, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+import { Bell, ChevronLeft, ChevronRight, Eye, MoreHorizontal } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table";
 import { IClubeCampeonato } from "../../../interfaces/ClubeCampeonato";
 import { getCampeonatoEstatisticas } from "../../../services/club/clubService";
@@ -17,6 +17,7 @@ import { IClube } from "../../../interfaces/Clube";
 import { IJogador } from "../../../interfaces/Jogador";
 import { IJogadorJogo } from "../../../interfaces/JogadorJogo";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "../../../components/ui/dropdown-menu";
+import PlayerInfo from "../../../components/Modal/Player/PlayerInfo/PlayerInfo";
 
 interface ITabelaProps extends IClubeCampeonato {
     pontos: number;
@@ -293,9 +294,9 @@ function ViewStats() {
                             <div className="flex-1">
                                 <h1 className="text-xl">Jogos da Liga</h1>
                                 <div className="w-full flex justify-around items-center mt-6 space-x-2">
-                                    <ChevronLeft onClick={() => setRodada(prev => Math.max(prev - 1, 1))}></ChevronLeft>
+                                    <ChevronLeft className="cursor-pointer" onClick={() => setRodada(prev => Math.max(prev - 1, 1))}></ChevronLeft>
                                     <span className="px-4 py-2 text-lg">{rodada} / {perPage}</span>
-                                    <ChevronRight onClick={() => setRodada(prev => Math.min(prev + 1, perPage))}></ChevronRight>
+                                    <ChevronRight className="cursor-pointer" onClick={() => setRodada(prev => Math.min(prev + 1, perPage))}></ChevronRight>
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -338,11 +339,12 @@ function ViewStats() {
                                                 </TableHead>
                                                 <TableHead>Jogador</TableHead>
                                                 <TableHead>Gols</TableHead>
+                                                <TableHead className="text-center px-4"><Eye /></TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {jogadoresStats.map((jogStats) =>
-                                                jogStats.gols > 0 && (
+                                                jogStats.gols > 1 && (
                                                     <TableRow key={jogStats.jogadorId}>
                                                         <TableCell className="font-medium">
                                                             <img
@@ -360,22 +362,22 @@ function ViewStats() {
                                                             {jogStats.gols}
                                                         </TableCell>
                                                         <TableCell>
-                                                        <DropdownMenu>
-                                                            <DropdownMenuTrigger asChild>
-                                                                <Button
-                                                                    aria-haspopup="true"
-                                                                    size="icon"
-                                                                    variant="ghost"
-                                                                >
-                                                                    <MoreHorizontal className="h-4 w-4" />
-                                                                    <span className="sr-only">Toggle menu</span>
-                                                                </Button>
-                                                            </DropdownMenuTrigger>
-                                                            <DropdownMenuContent className='flex flex-col gap-2' align="end">
-                                                                <Button variant='secondary'>Detalhes</Button>
-                                                            </DropdownMenuContent>
-                                                        </DropdownMenu>
-                                                    </TableCell>
+                                                            <DropdownMenu>
+                                                                <DropdownMenuTrigger asChild>
+                                                                    <Button
+                                                                        aria-haspopup="true"
+                                                                        size="icon"
+                                                                        variant="ghost"
+                                                                    >
+                                                                        <MoreHorizontal className="h-4 w-4" />
+                                                                        <span className="sr-only">Toggle menu</span>
+                                                                    </Button>
+                                                                </DropdownMenuTrigger>
+                                                                <DropdownMenuContent className='flex flex-col gap-2' align="end">
+                                                                    <PlayerInfo jogador={jogStats} />
+                                                                </DropdownMenuContent>
+                                                            </DropdownMenu>
+                                                        </TableCell>
                                                     </TableRow>
                                                 )
                                             )}
@@ -393,11 +395,12 @@ function ViewStats() {
                                                 </TableHead>
                                                 <TableHead>Jogador</TableHead>
                                                 <TableHead>Assistências</TableHead>
+                                                <TableHead className="text-center px-4"><Eye /></TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {jogadoresStats.map((jogStats) => (
-                                                jogStats.assistencias > 0 &&
+                                                jogStats.assistencias > 1 &&
                                                 <TableRow key={jogStats.jogadorId}>
                                                     <TableCell className="font-medium">
                                                         <img
@@ -411,7 +414,7 @@ function ViewStats() {
                                                     <TableCell >
                                                         {jogStats.nome}
                                                     </TableCell>
-                                                    <TableCell >
+                                                    <TableCell>
                                                         {jogStats.assistencias}
                                                     </TableCell>
 
@@ -428,7 +431,7 @@ function ViewStats() {
                                                                 </Button>
                                                             </DropdownMenuTrigger>
                                                             <DropdownMenuContent className='flex flex-col gap-2' align="end">
-                                                                <Button variant='secondary'>Detalhes</Button>
+                                                                <PlayerInfo jogador={jogStats} />
                                                             </DropdownMenuContent>
                                                         </DropdownMenu>
                                                     </TableCell>
