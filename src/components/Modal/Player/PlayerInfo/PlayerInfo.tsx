@@ -3,8 +3,6 @@
 import {
     Card,
     CardContent,
-    CardHeader,
-    CardTitle,
 } from "../../../ui/card"
 import {
     ChartConfig,
@@ -139,9 +137,6 @@ function PlayerInfo({ jogador }: PlayerInfoProps) {
                     </div>
                 </div>
                 <Card className="flex flex-col">
-                    <CardHeader className="items-center pb-0">
-                        <CardTitle>Estatísticas - {jogador.nome}</CardTitle>
-                    </CardHeader>
                     <CardContent className="flex-1 pb-0">
                         <ChartContainer
                             config={chartConfig}

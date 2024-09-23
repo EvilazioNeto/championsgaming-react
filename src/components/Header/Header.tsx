@@ -1,17 +1,11 @@
 import { Link, useParams } from "react-router-dom";
-import { useState } from "react";
 import { ModeToggle } from "../mode-toggle";
 
 function Header() {
-    const [corLogo, setCorLogo] = useState<string>("dark");
     const { id } = useParams();
 
     function onChangeTheme(e: string) {
-        if (e === "dark") {
-            setCorLogo("dark")
-        } else {
-            setCorLogo("light")
-        }
+        console.log(e)
     }
 
     return (
@@ -20,7 +14,7 @@ function Header() {
                 <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
                     <div className="flex h-14 items-center px-4 lg:h-[60px] lg:px-6">
                         <Link to={`http://localhost:5173/campeonato/${id}`} className="flex items-center gap-2 font-semibold">
-                            <img src={corLogo === "dark" ? "/logo-sem-fundo-branco.png" : "/logo-sem-fundo.png"} width={40} />
+                            <img src={"/champions-gaming1.png"} width={40} />
                             <span className="">Champions Gaming</span>
                         </Link>
                     </div>

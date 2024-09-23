@@ -65,8 +65,8 @@ export function Login() {
 
 
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <Card className="mx-auto max-w-sm">
+        <div className="flex items-center gap-8 justify-center min-h-screen">
+            <Card className="max-w-sm">
                 <CardHeader>
                     <CardTitle className="text-2xl">Entrar</CardTitle>
                     <CardDescription>
@@ -85,7 +85,7 @@ export function Login() {
                                                 <Input
                                                     id="email"
                                                     type="email"
-                                                    placeholder="m@example.com"
+                                                    placeholder="championsgaming@gmail.com"
                                                     required
                                                     {...field}
                                                 />
@@ -130,6 +130,12 @@ export function Login() {
                     </div>
                 </CardContent>
             </Card>
+            <img
+                src="/champions-gaming1.png"
+                className="w-[450px] max-[900px]:hidden"
+                alt=""
+            />
+
         </div>
     )
 }

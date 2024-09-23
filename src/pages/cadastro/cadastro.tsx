@@ -69,8 +69,8 @@ export function Cadastro() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen">
-            <Card className="mx-auto max-w-sm">
+        <div className="flex items-center gap-8 justify-center min-h-screen">
+            <Card className="max-w-sm">
                 <CardHeader>
                     <CardTitle className="text-xl">Cadastrar-se</CardTitle>
                     <CardDescription>
@@ -144,6 +144,11 @@ export function Cadastro() {
                     </div>
                 </CardContent>
             </Card>
+            <img
+                src="/champions-gaming1.png"
+                className="w-[450px] max-[900px]:hidden"
+                alt=""
+            />
         </div>
     )
 }
