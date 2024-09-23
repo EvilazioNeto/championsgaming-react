@@ -1,8 +1,9 @@
 import {
     Bell,
     CircleUser,
-    Home,
+    LayoutDashboard,
     LineChart,
+    Lock,
     LogOut,
     Menu,
     Search,
@@ -33,14 +34,15 @@ import { ModeToggle } from "../components/mode-toggle"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faFutbol } from "@fortawesome/free-solid-svg-icons"
 import { useAuth } from "../contexts/AuthProvider/useAuth"
+import BePro from "../components/Modal/BePro/BePro"
 
 function Layout({ children }: { children: ReactNode }) {
-    const [btnSelecionado, setBtnSelecionado] = useState<string>('Home');
+    const [btnSelecionado, setBtnSelecionado] = useState<string>('Dashboard');
     const navigate = useNavigate();
     const { logout } = useAuth();
 
     function onChangeTheme(e: string) {
-       console.log(e)
+        console.log(e)
     }
 
     function sair() {
@@ -65,11 +67,11 @@ function Layout({ children }: { children: ReactNode }) {
                         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
                             <Link
                                 to="/"
-                                onClick={() => setBtnSelecionado('Home')}
-                                className={`${btnSelecionado === "Home" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
+                                onClick={() => setBtnSelecionado('Dashboard')}
+                                className={`${btnSelecionado === "Dashboard" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
-                                <Home className="h-4 w-4" />
-                                Home
+                                <LayoutDashboard className="h-4 w-4" />
+                                Dashboard
                             </Link>
                             {/* <Link
                                 to="/criar-liga"
@@ -96,12 +98,22 @@ function Layout({ children }: { children: ReactNode }) {
                                 Artilheiros
                             </Link>
                             <Link
+                                to="/minhas-ligas"
+                                onClick={() => setBtnSelecionado('Minhas Copas')}
+                                className={`${btnSelecionado === "Minhas Copas" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
+                            >
+                                <ShieldHalf className="h-4 w-4" />
+                                Minhas Copas
+                                <Lock className="ml-auto"/>
+                            </Link>
+                            <Link
                                 to="#"
                                 onClick={() => setBtnSelecionado('Analytics')}
                                 className={`${btnSelecionado === "Analytics" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
                                 <LineChart className="h-4 w-4" />
                                 Analytics
+                                <Lock className="ml-auto"/>
                             </Link>
                         </nav>
                     </div>
@@ -114,9 +126,7 @@ function Layout({ children }: { children: ReactNode }) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-                                <Button size="sm" className="w-full">
-                                    Upgrade
-                                </Button>
+                                <BePro />
                             </CardContent>
                         </Card>
                     </div>
@@ -146,11 +156,11 @@ function Layout({ children }: { children: ReactNode }) {
                                 </Link>
                                 <Link
                                     to="/"
-                                    onClick={() => setBtnSelecionado('Home')}
+                                    onClick={() => setBtnSelecionado('Dashboard')}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >
-                                    <Home className="h-4 w-4" />
-                                    Home
+                                    <LayoutDashboard className="h-4 w-4" />
+                                    Dashboard
                                 </Link>
                                 {/* <Link
                                     to="/criar-liga"
@@ -177,12 +187,22 @@ function Layout({ children }: { children: ReactNode }) {
                                     Artilheiros
                                 </Link>
                                 <Link
+                                    to="/minhas-ligas"
+                                    onClick={() => setBtnSelecionado('Minhas Copas')}
+                                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                                >
+                                    <ShieldHalf className="h-4 w-4" />
+                                    Minhas Copas
+                                    <Lock className="ml-auto"/>
+                                </Link>
+                                <Link
                                     to="#"
                                     onClick={() => setBtnSelecionado('Analytics')}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >
                                     <LineChart className="h-4 w-4" />
                                     Analytics
+                                    <Lock className="ml-auto"/>
                                 </Link>
                             </nav>
                             <div className="mt-auto">
@@ -194,9 +214,7 @@ function Layout({ children }: { children: ReactNode }) {
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-                                        <Button size="sm" className="w-full">
-                                            Upgrade
-                                        </Button>
+                                        <BePro />
                                     </CardContent>
                                 </Card>
                             </div>

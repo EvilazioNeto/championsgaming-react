@@ -46,6 +46,8 @@ function ViewStats() {
     const [perPage, setPerPage] = useState<number>(0);
     const [campId, setCampId] = useState<string>('');
     const [jogadoresStats, setJogadoresStats] = useState<IjogadorStatsProps[]>([]);
+    const [jogadoresAssists, setJogadoresAssists] = useState<IjogadorStatsProps[]>([]);
+
 
     useEffect(() => {
         if (campeonato) {
@@ -56,7 +58,6 @@ function ViewStats() {
     }, [campeonato]);
 
     useEffect(() => {
-
         async function obterDados() {
             try {
                 const campeonatoRes = await obterCampeonatoPorId(Number(id));
@@ -128,9 +129,22 @@ function ViewStats() {
                     ...jogadoresGols[Number(jogadorId)]
                 }));
 
+                const jogadoresAssistsArray = Object.keys(jogadoresGols).map((jogadorId) => ({
+                    jogadorId: Number(jogadorId),
+                    ...jogadoresGols[Number(jogadorId)]
+                }));
+
                 setJogadoresStats(jogadoresGolsArray.sort((a, b) => {
                     if (b.gols !== a.gols) {
                         return b.gols - a.gols;
+                    } else {
+                        return a.nome.localeCompare(b.nome);
+                    }
+                }));
+
+                setJogadoresAssists(jogadoresAssistsArray.sort((a, b) => {
+                    if (b.assistencias !== a.assistencias) {
+                        return b.assistencias - a.assistencias;
                     } else {
                         return a.nome.localeCompare(b.nome);
                     }
@@ -399,7 +413,7 @@ function ViewStats() {
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {jogadoresStats.map((jogStats) => (
+                                            {jogadoresAssists.map((jogStats) => (
                                                 jogStats.assistencias > 1 &&
                                                 <TableRow key={jogStats.jogadorId}>
                                                     <TableCell className="font-medium">
