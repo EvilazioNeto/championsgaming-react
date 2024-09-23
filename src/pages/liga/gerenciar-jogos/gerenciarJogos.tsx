@@ -24,6 +24,8 @@ import { toast } from 'react-toastify';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import { getCampeonatoEstatisticas } from '../../../services/club/clubService';
+import estadioLogo from '/estadio.png'
+import { Label } from '../../../components/ui/label';
 
 interface IPosicoesProps {
     id: number,
@@ -443,32 +445,28 @@ function GerenciarJogos() {
             {loading && <Loading />}
             <main className={styles.gerenciarJogosContainer}>
                 <section>
-                    {/* <div className={styles.rodadasBox}>
-                        <h2>JOGOS</h2>
-                        <select className={styles.selecionarRodada} onChange={(e) => handleRodadas(Number(e.target.value))}>
-                            {campeonato && Array.from({ length: campeonato?.numeroRodadas }, (_, i) => (
-                                <option value={i + 1} key={i}>{i + 1}° rodada</option>
-                            ))}
-                        </select>
-                        <div className={styles.jogosBox}>
-                            {jogos.length > 0 ? (
-                                jogos.map((jogo) => {
-                                    const clube1 = arrClubs.find((clube) => clube.id === jogo.clube1Id);
-                                    const clube2 = arrClubs.find((clube) => clube.id === jogo.clube2Id);
-                                    return clube1 && clube2 && (
-                                        <div key={jogo.id} className={styles.jogo}>
-                                            <p>{clube1.nome} {jogo.golClube1} x {jogo.golClube2} {clube2.nome}</p>
-                                        </div>
-                                    )
-                                })
-                            ) : (
-                                <div className={styles.empty}>
-                                    <h2>Nenhum jogo encontrado</h2>
-                                    <img src="https://www.shutterstock.com/image-vector/illustration-deflated-football-soccer-ball-600nw-2301467351.jpg" alt="" />
+                    <h1 className='text-2xl'>Criar Jogo</h1>
+                        <div className='flex gap-4'>
+                            <form className='flex flex-col' onSubmit={handleSubmit(onSubmit)}>
+                                <div>
+                                    <p>Local do jogo</p>
+                                    <Input   {...register('localJogo')} type="text" placeholder='Ex: Camp Nou' />
+                                    <div className={styles.msgError}>{errors.localJogo?.message}</div>
                                 </div>
-                            )}
+                                <div>
+                                    <p>Data jogo:</p>
+                                    <Input type="date"   {...register('dataJogo')} />
+                                    <div className={styles.msgError}>{typeof errors.dataJogo?.message === 'string' && errors.dataJogo?.message}</div>
+                                </div>
+                                <div>
+                                    <p>Horario do jogo</p>
+                                    <Input type="time"   {...register('horaJogo')} />
+                                    <div className={styles.msgError}>{typeof errors.horaJogo?.message === 'string' && errors.horaJogo?.message}</div>
+                                </div>
+                                <Button>Criar Jogo</Button>
+                            </form>
                         </div>
-                    </div> */}
+
                     <div className={styles.jogoContainer}>
                         <div className={styles.placar}>
                             <h2 className='text-xl'>{golsClube1} x {golsClube2}</h2>
@@ -544,26 +542,7 @@ function GerenciarJogos() {
                                 </div>
                             </div>
                         </div>
-                        <div className={styles.detalhesJogo}>
-                            <form className='flex items-center' onSubmit={handleSubmit(onSubmit)}>
-                                <div>
-                                    <p>Local do jogo</p>
-                                    <Input   {...register('localJogo')} type="text" placeholder='Ex: Camp Nou' />
-                                    <div className={styles.msgError}>{errors.localJogo?.message}</div>
-                                </div>
-                                <div>
-                                    <p>Data jogo:</p>
-                                    <Input type="date"   {...register('dataJogo')} />
-                                    <div className={styles.msgError}>{typeof errors.dataJogo?.message === 'string' && errors.dataJogo?.message}</div>
-                                </div>
-                                <div>
-                                    <p>Horario do jogo</p>
-                                    <Input type="time"   {...register('horaJogo')} />
-                                    <div className={styles.msgError}>{typeof errors.horaJogo?.message === 'string' && errors.horaJogo?.message}</div>
-                                </div>
-                                <Button>CRIAR JOGO</Button>
-                            </form>
-                        </div>
+
                     </div>
                 </section>
             </main >
