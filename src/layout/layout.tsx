@@ -98,7 +98,7 @@ function Layout({ children }: { children: ReactNode }) {
                                 Artilheiros
                             </Link>
                             <Link
-                                to="/minhas-ligas"
+                                to="/minhas-copas"
                                 onClick={() => setBtnSelecionado('Minhas Copas')}
                                 className={`${btnSelecionado === "Minhas Copas" ? "text-primary bg-muted" : "text-muted-foreground"} flex items-center gap-3 rounded-lg  px-3 py-2  transition-all hover:text-primary`}
                             >
@@ -187,7 +187,7 @@ function Layout({ children }: { children: ReactNode }) {
                                     Artilheiros
                                 </Link>
                                 <Link
-                                    to="/minhas-ligas"
+                                    to="/minhas-copas"
                                     onClick={() => setBtnSelecionado('Minhas Copas')}
                                     className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
                                 >

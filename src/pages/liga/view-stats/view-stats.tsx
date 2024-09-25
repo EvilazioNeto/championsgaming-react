@@ -51,11 +51,15 @@ function ViewStats() {
 
     useEffect(() => {
         if (campeonato) {
-            const totalJogos = (campeonato.quantidadeTimes * (campeonato.quantidadeTimes - 1)) / 2;
-            const jogosPorRodada = totalJogos / campeonato.numeroRodadas;
-            setPerPage(jogosPorRodada);
+            const totalJogos = (campeonato.quantidadeTimes * (campeonato.quantidadeTimes - 1));
+
+            if (campeonato.numeroRodadas > 0) {
+                const jogosPorRodada = totalJogos / campeonato.numeroRodadas;
+                setPerPage(jogosPorRodada);
+            }
         }
     }, [campeonato]);
+
 
     useEffect(() => {
         async function obterDados() {
@@ -236,8 +240,8 @@ function ViewStats() {
                             </div>
                         </Card>
 
-                        <div className="flex gap-4">
-                            <div className="w-[800px]">
+                        <div className="flex gap-4 max-[1200px]:flex-col">
+                            <div className="w-[800px] max-[1200px]:w-full">
                                 <h1 className="text-xl">Tabela do Campeonato</h1>
                                 <Table className="w-full border border-gray-500">
                                     <TableHeader>
@@ -308,9 +312,15 @@ function ViewStats() {
                             <div className="flex-1">
                                 <h1 className="text-xl">Jogos da Liga</h1>
                                 <div className="w-full flex justify-around items-center mt-6 space-x-2">
-                                    <ChevronLeft className="cursor-pointer" onClick={() => setRodada(prev => Math.max(prev - 1, 1))}></ChevronLeft>
-                                    <span className="px-4 py-2 text-lg">{rodada} / {perPage}</span>
-                                    <ChevronRight className="cursor-pointer" onClick={() => setRodada(prev => Math.min(prev + 1, perPage))}></ChevronRight>
+                                    <ChevronLeft
+                                        className="cursor-pointer"
+                                        onClick={() => setRodada(prev => Math.max(prev - 1, 1))}
+                                    />
+                                    <span className="px-4 py-2 text-lg">{rodada} / {campeonato.numeroRodadas}</span>
+                                    <ChevronRight
+                                        className="cursor-pointer"
+                                        onClick={() => setRodada(prev => Math.min(prev + 1, campeonato.numeroRodadas))}
+                                    />
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -342,8 +352,8 @@ function ViewStats() {
 
                         <div className="flex flex-col gap-4">
                             <h2 className="text-xl">Melhores Jogadores</h2>
-                            <div className="flex gap-2">
-                                <div className="w-[50%]">
+                            <div className="flex gap-2 max-[850px]:flex-col">
+                                <div className="w-[50%] max-[850px]:w-full">
                                     <h2>Artilheiros</h2>
                                     <Table>
                                         <TableHeader>
@@ -399,7 +409,7 @@ function ViewStats() {
                                         </TableBody>
                                     </Table>
                                 </div>
-                                <div className="w-[50%]">
+                                <div className="w-[50%] max-[850px]:w-full">
                                     <h2>Garçons</h2>
                                     <Table>
                                         <TableHeader>

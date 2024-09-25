@@ -261,6 +261,28 @@
                     }
                 }
             }
+
+        }
+    }
+}
+
+@media (max-width: 1000px){
+    .gerenciarJogosContainer{
+        section{
+            .camposContainer{
+                flex-direction: column;
+
+                & .campo{
+                    width: 100%;
+                    
+                    & .campoBox{
+
+                        & .campoImg{
+                            width: 100% !important;
+                        }
+                    }
+                }
+            }
         }
     }
 }

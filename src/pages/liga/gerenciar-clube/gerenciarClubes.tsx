@@ -369,9 +369,6 @@ function GerenciarClubes() {
                                         <DropdownMenuItem>
                                             <Link to="/minhas-ligas">Minhas Ligas</Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            <Link to="/criar-liga">Criar Liga</Link>
-                                        </DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>
                             </BreadcrumbItem>

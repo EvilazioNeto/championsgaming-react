@@ -58,12 +58,14 @@ import { Api } from "../../services/api/axios-config";
 import { IClube } from "../../interfaces/Clube";
 import { ICampeonato } from "../../interfaces/Campeonato";
 import { IJogador } from "../../interfaces/Jogador"
+import { IJogo } from "../../interfaces/Jogos"
 
 function Home() {
     const { id } = useAuth();
     const [clubes, setClubes] = useState<IClube[]>([]);
     const [Campeonatos, setCampeonatos] = useState<ICampeonato[]>([]);
     const [Jogadores, setJogadores] = useState<IJogador[]>([]);
+    const [jogos, setJogos] = useState<IJogo[]>([]);
 
     useEffect(() => {
         async function obterDados() {
@@ -81,6 +83,7 @@ function Home() {
             }
 
             let JogadoresArr: IJogador[] = [];
+            let jogosArr: IJogo[] = [];
 
             Promise.all(
                 clubeRes.data.map(async (clube: IJogador) => {
@@ -94,6 +97,19 @@ function Home() {
                 .catch((error) => {
                     console.error("Erro ao buscar jogadores:", error);
                 });
+
+                Promise.all(
+                    campeonatoRes.data.map(async (campeonato: ICampeonato) => {
+                        const response = await Api.get(`/campeonatos/${campeonato.id}/jogos`);
+                        jogosArr = [...jogosArr, ...response.data];
+                    })
+                )
+                    .then(() => {
+                        setJogos(jogosArr);
+                    })
+                    .catch((error) => {
+                        console.error("Erro ao buscar jogos:", error);
+                    });
         }
         obterDados();
     }, [])
@@ -101,8 +117,6 @@ function Home() {
     return (
         <main className="">
             <section className="m-auto w-full max-w-screen-xl flex flex-col gap-4">
-                <h1 className="text-2xl">Dashboard</h1>
-
                 <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
                     <Card x-chunk="dashboard-01-chunk-0">
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -114,7 +128,7 @@ function Home() {
                         <CardContent>
                             <div className="text-2xl font-bold">{clubes.length}</div>
                             <p className="text-xs text-muted-foreground">
-                                +20.1% from last month
+                                +20,1% em relação ao mês passado
                             </p>
                         </CardContent>
                     </Card>
@@ -128,7 +142,7 @@ function Home() {
                         <CardContent>
                             <div className="text-2xl font-bold">{Campeonatos.length}</div>
                             <p className="text-xs text-muted-foreground">
-                                +180.1% from last month
+                                +180.1% em relação ao mês passado
                             </p>
                         </CardContent>
                     </Card>
@@ -140,7 +154,7 @@ function Home() {
                         <CardContent>
                             <div className="text-2xl font-bold">{Jogadores.length}</div>
                             <p className="text-xs text-muted-foreground">
-                                +19% from last month
+                                +19% em relação ao mês passado
                             </p>
                         </CardContent>
                     </Card>
@@ -150,15 +164,15 @@ function Home() {
                             <Activity className="h-4 w-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">27</div>
+                            <div className="text-2xl font-bold">{jogos.length}</div>
                             <p className="text-xs text-muted-foreground">
-                                +201 since last month
+                                +2 em relação ao mês passado
                             </p>
                         </CardContent>
                     </Card>
                 </div>
-                <div className="flex gap-4 justify-between items-start">
-                    <Card className="flex-1">
+                <div className="flex max-[1150px]:flex-col gap-4 justify-between items-start">
+                    <Card className="flex-1 max-[1150px]:w-full">
                         <CardHeader>
                             <CardTitle>Campeonatos mais visitados</CardTitle>
                         </CardHeader>
@@ -194,7 +208,7 @@ function Home() {
                     </Card>
                     <div className="relative">
                         <img className="bg-red-50 top-[60%] rounded-lg right-0 absolute w-[80px]" src="/spoilergif.gif" alt="" />
-                        <img className="rounded-lg w-[380px]" src="/newsports-banner.png" alt="" />
+                        <img className="max-[1150px]:w-full rounded-lg w-[380px]" src="/newsports-banner.png" alt="" />
                     </div>
                 </div>
             </section>

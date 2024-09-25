@@ -24,8 +24,13 @@ import { toast } from 'react-toastify';
 import { Input } from '../../../components/ui/input';
 import { Button } from '../../../components/ui/button';
 import { getCampeonatoEstatisticas } from '../../../services/club/clubService';
-import estadioLogo from '/estadio.png'
-import { Label } from '../../../components/ui/label';
+import { Card, CardContent, CardHeader } from '../../../components/ui/card';
+import { Form, FormControl, FormField, FormItem, FormLabel } from '../../../components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
+import { Plus } from 'lucide-react';
+import { Breadcrumb, BreadcrumbEllipsis, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '../../../components/ui/breadcrumb';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../../components/ui/dropdown-menu';
+import { Link } from 'react-router-dom';
 
 interface IPosicoesProps {
     id: number,
@@ -35,9 +40,7 @@ interface IPosicoesProps {
 
 function GerenciarJogos() {
     const [clubeCampStats, setClubeCampStats] = useState<IClubeCampeonato[]>([]);
-    const [rodada, setRodada] = useState<number>(1)
     const { id } = useParams();
-    const [jogos, setJogos] = useState<IJogo[]>([]);
     const [campeonato, setCampeonato] = useState<ICampeonato>();
     const [arrClubs, setArrClubs] = useState<IClube[]>([]);
     const [clube1Id, setClube1Id] = useState<number | undefined>(undefined);
@@ -77,28 +80,16 @@ function GerenciarJogos() {
         { id: 14, nome: "CA", classe: styles.centroavante },
     ])
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'rodada' | 'tipoJogo'>>({
-        resolver: yupResolver(jogosValidationSchema)
-    })
-
-    // useEffect(() => {
-    //     console.log(jogadoresJogosStats)
-    // }, [jogadoresJogosStats])
-
-    useEffect(() => {
-        async function obterJogos() {
-            try {
-                const response = await Api.get(`/campeonatos/${idToNumber}/jogos`)
-                if (response.status === 200) {
-                    const jogosRodada = response.data.filter((jogoRodata: IJogo) => jogoRodata.rodada === 1)
-                    setJogos(jogosRodada)
-                }
-            } catch (error) {
-                console.log(error)
-            }
+    const form = useForm<Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'tipoJogo'>>({
+        resolver: yupResolver(jogosValidationSchema),
+        mode: 'onChange',
+        defaultValues: {
+            dataJogo: '',
+            horaJogo: '',
+            localJogo: '',
+            rodada: 1
         }
-        obterJogos()
-    }, []);
+    })
 
     let idToNumber: number
     if (id) {
@@ -152,6 +143,7 @@ function GerenciarJogos() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [id, clube1Id, clube2Id]);
 
+    const [clubesSelec, setClubesSelec] = useState<{ clube1: IClube, clube2: IClube }>()
 
     function handleSistemaTatico(sistema: string, clube: string) {
         const novoSistema = obterSistemaTatico(sistema);
@@ -307,7 +299,7 @@ function GerenciarJogos() {
     }
 
 
-    async function onSubmit(dados: Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'rodada' | 'tipoJogo'>) {
+    async function onSubmit(dados: Omit<IJogo, 'id' | 'clube1Id' | 'clube2Id' | 'golClube1' | 'golClube2' | 'campeonatoId' | 'tipoJogo'>) {
         if (escalacaoClube1.length < 11 && escalacaoClube2.length < 11) {
             toast.error("Escale todos os jogadores")
         } else {
@@ -319,7 +311,7 @@ function GerenciarJogos() {
                     dataJogo: formatToDate(dados.dataJogo),
                     horaJogo: dados.horaJogo,
                     localJogo: dados.localJogo,
-                    rodada: rodada,
+                    rodada: dados.rodada,
                     golClube2: golsClube2,
                     golClube1: golsClube1,
                     tipoJogo: 'ida'
@@ -403,7 +395,7 @@ function GerenciarJogos() {
                                     }
                                 })
                                 toast.success("Jogo criado com sucesso")
-                                reset();
+                                form.reset();
 
                             } else {
                                 toast.error("Erro ao criar jogo")
@@ -425,56 +417,80 @@ function GerenciarJogos() {
         setClubeCampStats(infoTabela);
     };
 
-    async function handleRodadas(rodada: number) {
-        setRodada(rodada)
-        try {
-            const response = await Api.get(`/campeonatos/${idToNumber}/jogos`)
-            if (response.status === 200) {
-                const jogosRodada = response.data.filter((jogoRodata: IJogo) => jogoRodata.rodada === rodada)
-                setJogos(jogosRodada)
-            }
-        } catch (error) {
-            console.log(error)
-            toast.error("Erro ao buscar jogos")
-        }
-    }
+    useEffect(() => {
+        async function obterClubes() {
+            if (clube1Id && clube2Id) {
+                const club1Res = await Api.get(`/clubes/${clube1Id}`);
+                const club2Res = await Api.get(`/clubes/${clube2Id}`);
 
+                if (club1Res.status == 200 && club2Res.status === 200) {
+                    setClubesSelec({ clube1: club1Res.data, clube2: club2Res.data })
+                }
+            }
+        }
+        obterClubes()
+
+    }, [clube1Id, clube2Id]);
 
     return (
         <>
             {loading && <Loading />}
             <main className={styles.gerenciarJogosContainer}>
                 <section>
-                    <h1 className='text-2xl'>Criar Jogo</h1>
-                        <div className='flex gap-4'>
-                            <form className='flex flex-col' onSubmit={handleSubmit(onSubmit)}>
-                                <div>
-                                    <p>Local do jogo</p>
-                                    <Input   {...register('localJogo')} type="text" placeholder='Ex: Camp Nou' />
-                                    <div className={styles.msgError}>{errors.localJogo?.message}</div>
-                                </div>
-                                <div>
-                                    <p>Data jogo:</p>
-                                    <Input type="date"   {...register('dataJogo')} />
-                                    <div className={styles.msgError}>{typeof errors.dataJogo?.message === 'string' && errors.dataJogo?.message}</div>
-                                </div>
-                                <div>
-                                    <p>Horario do jogo</p>
-                                    <Input type="time"   {...register('horaJogo')} />
-                                    <div className={styles.msgError}>{typeof errors.horaJogo?.message === 'string' && errors.horaJogo?.message}</div>
-                                </div>
-                                <Button>Criar Jogo</Button>
-                            </form>
-                        </div>
+                    <Breadcrumb className='pb-4'>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <Link to="/">Home</Link>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger className="flex items-center gap-1">
+                                        <BreadcrumbEllipsis className="h-4 w-4" />
+                                        <span className="sr-only">Toggle menu</span>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="start">
+                                        <DropdownMenuItem>
+                                            <Link to="/minhas-ligas">Minhas Ligas</Link>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                {campeonato && campeonato.nome}
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Criar jogo</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+
+                    <h1 className='text-2xl text-center'>Criar Jogo</h1>
 
                     <div className={styles.jogoContainer}>
-                        <div className={styles.placar}>
-                            <h2 className='text-xl'>{golsClube1} x {golsClube2}</h2>
-                        </div>
                         <div className={styles.camposContainer}>
+                            <div className='mt-12 flex flex-col gap-4 max-lg:flex-row'>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                            </div>
                             <div className={styles.campo}>
                                 <div>
-                                    <p>Clube 1</p>
+                                    <img width={35} className='aspect-square' src={clubesSelec?.clube1.fotoUrl} alt="" />
                                     <select className='bg-transparent border rounded-lg border-cyan-950' name="" id="" onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeClub("clube1", Number(e.target.value))}>
                                         {arrClubs.map((clube) => (
                                             clube.id !== clube2Id &&
@@ -509,7 +525,7 @@ function GerenciarJogos() {
                             </div>
                             <div className={styles.campo}>
                                 <div>
-                                    <p>Clube 2</p>
+                                    <img width={35} className='aspect-square' src={clubesSelec?.clube2.fotoUrl} alt="" />
                                     <select className='bg-transparent border rounded-lg border-cyan-950' onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleChangeClub("clube2", Number(e.target.value))}>
                                         {arrClubs.map((clube) => (
                                             clube.id !== clube1Id &&
@@ -541,8 +557,100 @@ function GerenciarJogos() {
                                     <img className={styles.campoImg} src={campo} alt="" />
                                 </div>
                             </div>
+                            <div className='mt-12 flex flex-col gap-4 max-lg:flex-row'>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                                <div className='bg-blue-600 w-[50px] h-[50px]  flex justify-center items-center rounded-full'>
+                                    <Plus className='text-black' />
+                                </div>
+                            </div>
                         </div>
 
+                        <Card className='w-[90%] m-auto'>
+                            <CardHeader>
+                                Detalhes do jogo
+                            </CardHeader>
+                            <CardContent>
+                                <div className={styles.placar}>
+                                    <h2 className='flex items-center justify-center gap-2 text-xl'><img width={40} src={clubesSelec?.clube1.fotoUrl} alt="" /> {clubesSelec?.clube1.nome} {golsClube1} x {golsClube2} {clubesSelec?.clube2.nome} <img width={40} src={clubesSelec?.clube2.fotoUrl} alt="" /></h2>
+                                </div>
+                                <Form {...form}>
+                                    <form className="mt-4 flex flex-wrap justify-between w-full items-center space-y-4 md:space-y-0 md:flex-nowrap gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+                                        <div className="w-full md:w-auto md:flex-1">
+                                            <FormField control={form.control} name="localJogo" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Local do Jogo</FormLabel>
+                                                    <FormControl>
+                                                        <Input placeholder="Maracanã" className="w-full" {...field} />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )} />
+                                        </div>
+
+                                        <div className="w-full md:w-auto md:flex-1">
+                                            <FormField control={form.control} name="dataJogo" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Data do jogo</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="date" className="w-full" {...field} />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )} />
+                                        </div>
+
+                                        <div className="w-full md:w-auto md:flex-1">
+                                            <FormField control={form.control} name="rodada" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Rodada</FormLabel>
+                                                    <Select defaultValue={String(field.value)} onValueChange={field.onChange}>
+                                                        <FormControl>
+                                                            <SelectTrigger>
+                                                                <SelectValue>{field.value ? String(field.value) : "1"}</SelectValue>
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            {campeonato &&
+                                                                Array.from({ length: campeonato.numeroRodadas }, (_, index) => (
+                                                                    <SelectItem key={index + 1} value={String(index + 1)}>
+                                                                        {index + 1}
+                                                                    </SelectItem>
+                                                                ))
+                                                            }
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormItem>
+                                            )} />
+                                        </div>
+
+                                        <div className="w-full md:w-auto md:flex-1">
+                                            <FormField control={form.control} name="horaJogo" render={({ field }) => (
+                                                <FormItem>
+                                                    <FormLabel>Horário do jogo</FormLabel>
+                                                    <FormControl>
+                                                        <Input type="time" className="w-full" {...field} />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )} />
+                                        </div>
+
+                                        <div className="w-full md:w-auto">
+                                            <Button className="w-full md:w-auto">Criar Jogo</Button>
+                                        </div>
+                                    </form>
+                                </Form>
+
+                            </CardContent>
+                        </Card>
                     </div>
                 </section>
             </main >
