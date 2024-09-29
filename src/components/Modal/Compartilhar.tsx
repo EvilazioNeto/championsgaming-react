@@ -1,4 +1,4 @@
-import { Paperclip, Copy, Send } from "lucide-react";
+import { Copy, Send } from "lucide-react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { useState } from "react";
@@ -23,7 +23,7 @@ export function Compartilhar({ id }: CompartilharProps) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant='secondary' className='flex justify-between gap-2'>Compartilhar <Paperclip /></Button>
+                <Button variant='secondary' className='flex justify-between gap-2'>Compartilhar</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>

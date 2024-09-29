@@ -467,8 +467,6 @@ function GerenciarJogos() {
                         </BreadcrumbList>
                     </Breadcrumb>
 
-                    <h1 className='text-2xl text-center'>Criar Jogo</h1>
-
                     <div className={styles.jogoContainer}>
                         <div className={styles.camposContainer}>
                             <div className='mt-12 flex flex-col gap-4 max-lg:flex-row'>
