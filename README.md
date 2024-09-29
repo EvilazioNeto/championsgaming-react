@@ -20,6 +20,7 @@ Planos para expandir suas funcionalidades. Algumas das melhorias previstas inclu
 - **Suporte a Mais Esportes:** Estamos trabalhando para adicionar a capacidade de gerenciar ligas de diversos esportes, como basquete, vôlei e mais, permitindo que usuários de diferentes modalidades possam aproveitar a plataforma.
 
 - **Página de Administrador:** Em breve, implementaremos uma página dedicada para administradores, onde será possível gerenciar usuários e moderar conteúdo.
+- **Copas:** Adicionar as copas.
 
 ## Demonstração
 [Vídeo - Champions Gaming](https://youtu.be/gUb2VvSoxLc)
